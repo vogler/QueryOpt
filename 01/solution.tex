@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{scrartcl}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumerate}
+
+\begin{document}
+
+\author{Johannes Merkle\\Ralf Vogler}
+\title{Query Optimization}
+\subtitle{1. Exercise}
+
+\maketitle
+
+\section*{Exercise 1}
+Find all students that attended the lectures together with Schopenhauer, excluding
+Schopenhauer himself.
+\begin{verbatim}
+SELECT s2.name FROM studenten s1, studenten s2, hoeren h1, hoeren h2
+WHERE s1.name='Schopenhauer' AND s1.matrnr=h1.matrnr AND s2.matrnr=h2.matrnr
+AND h1.vorlnr=h2.vorlnr AND s2.matrnr<>s1.matrnr
+\end{verbatim}
+\vspace*{5pt}
+Find all professors whose lectures attended at least two students.
+\begin{verbatim}
+SELECT p.name, COUNT(h.matrnr) AS hoerer FROM professoren p, vorlesungen v, hoeren h
+WHERE p.persnr=v.gelesenvon AND v.vorlnr=h.vorlnr
+GROUP BY p.name
+HAVING COUNT(h.matrnr)>=2
+\end{verbatim}
+
+
+\section*{Exercise 2}
+Code in folder tinydb.
+
+\end{document}
