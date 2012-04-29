@@ -1,12 +1,23 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import tinydb.Database;
+import tinydb.Register;
 import tinydb.Table;
+import tinydb.operator.CrossProduct;
+import tinydb.operator.Operator;
+import tinydb.operator.Printer;
+import tinydb.operator.Selection;
+import tinydb.operator.Tablescan;
 
 public class Exercise2 {
 
@@ -48,31 +59,121 @@ public class Exercise2 {
 			}
 			// binding.attribute=(binding.attribute|constant)
 			// (and binding.attribute=(binding.attribute|constant))*
-			p = Pattern.compile("\\w+\\.\\w+=\\w+(and \\w+\\.\\w+=\\w+)*");
+			p = Pattern.compile("\\w+\\.\\w+=(\\w+\\.\\w+|\\w+)(and \\w+\\.\\w+=(\\w+\\.\\w+|\\w+))*");
 			if(!p.matcher(joincond).matches()){
 				System.err.println("Join conditions don't match the pattern: "+p.toString());
 				System.err.println("Your input: "+joincond);
 				continue;
 			}
 			
-			// TODO save values in file
+			// store the query structure (to file?)
+			BufferedWriter bw = new BufferedWriter(new FileWriter("query.txt"));
+			bw.write("relations: "+relations);
+			bw.newLine();
+			bw.write("selections: "+selections);
+			bw.newLine();
+			bw.write("joinconditions: "+joincond);
+			bw.close();
+			
 			
 			// handle relations
 			Map<String, Table> h_rel = new HashMap<String, Table>();
 			String[] a_rel = relations.split(",");
+			// accumulator for cross products
+			Operator cp = null;
 			for(String s : a_rel){
 				String[] binding = s.split(" ");
-				System.out.println("trying to open "+binding[0]);
 				Table table = db.getTable(binding[0]);
-				if(table == null){ // TODO java.io.IOException: Stream closed
+				if(table == null){
 					System.err.println("Table "+binding[0]+" doesn't exist");
 					continue loop;
 				}
 				h_rel.put(binding[1], table);
+				if(cp == null){
+					cp = new Tablescan(table);
+				}else{
+					cp = new CrossProduct(cp, new Tablescan(table));
+				}
 			}
 			
+			// handle join conditions
+			List<Pair> a_cond = new ArrayList<Pair>();
+			for(String cond : joincond.split(" and ")){
+				String expr[] = cond.split("=");
+				String sa = expr[0];
+				String sb = expr[1];
+				// left side of condition
+				// TODO extract method
+				String[] a_binding = sa.split("\\.");
+				Table t_a = h_rel.get(a_binding[0]);
+				if(t_a == null){
+					System.err.println("There is no table for binding "+a_binding[0]+" in condition "+cond);
+					continue loop;
+				}
+				int a_attr = t_a.findAttribute(a_binding[1]);
+				if(a_attr == -1){
+					System.err.println("There is no attribute "+a_binding[1]+" for binding "+a_binding[0]+" in condition "+cond);
+					continue loop;
+				}
+				Register a = new Tablescan(t_a).getOutput()[a_attr];
+				// right side of condition
+				Register b;
+				if(sb.contains(".")){
+					String[] b_binding = sb.split("\\.");
+					Table t_b = h_rel.get(b_binding[0]);
+					if(t_b == null){
+						System.err.println("There is no table for binding "+b_binding[0]+" in condition "+cond);
+						continue loop;
+					}
+					int b_attr = t_b.findAttribute(b_binding[1]);
+					if(b_attr == -1){
+						System.err.println("There is no attribute "+b_binding[1]+" for binding "+b_binding[0]+" in condition "+cond);
+						continue loop;
+					}
+					b = new Tablescan(t_b).getOutput()[b_attr];
+				}else{
+					// constant
+					try{
+						int i = Integer.parseInt(sb);
+						b = new Register(i);
+					}catch(NumberFormatException e){
+						b = new Register(sb);
+					}
+				}
+				// add condition pair to list
+				a_cond.add(new Pair(a, b));
+			}
+			// do selections with conditions from list on cross product
+			Operator select = cp;
+			for(Pair cond : a_cond){
+				select = new Selection(select, cond.a, cond.b);
+			}
 			
-			br.close();
+			// handle selections
+			List<String> a_sel = new ArrayList<String>();
+			if(!selections.equals("*")){
+				String[] s = selections.split(",");
+				a_sel.addAll(Arrays.asList(s));
+				// TODO check if attributes exist. problem: on which table? binding missing in definition?
+			}
+			
+			// do projection
+//			Projection project = new Projection(select, new Register[]{ name, titel });
+			Printer out = new Printer(select);
+			out.open();
+			while (out.next());
+			out.close();
+		}
+		
+		br.close();
+	}
+	
+	static private class Pair {
+		public Register a;
+		public Register b;
+		public Pair(Register a, Register b){
+			this.a = a;
+			this.b = b;
 		}
 	}
 }
