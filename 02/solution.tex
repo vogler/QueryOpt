@@ -145,7 +145,7 @@ If $R1.x$ is a key, we can have at most 1 entry, as keys are unique. In this cas
 
 \subsubsection*{Part 2}
 
-Given an estimation for the selectivity of $\sigma_{R1.x=c}$, we can estimate $\Join_{R1.x_R2.y}$ as $selectivity(\sigma_{R1.x=c})*selectivity(\sigma_{R1.x=c})$, though this would not be very accurate.
+Given an estimation for the selectivity of $\sigma_{R1.x=c}$, we can estimate the selectivity of $\Join_{R1.x=R2.y}$ as $selectivity(\sigma_{R1.x=c})*selectivity(\sigma_{R1.x=c})$, though this would not be very accurate.
 
 \section*{Exercise 3}
 
