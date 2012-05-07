@@ -14,9 +14,9 @@
 *.tar.gz
 *.zip
 *.pdf
-*tinydb/data*/
-*tinydb/tinydb*/
-*tinydb/samples*/
+02/tinydb/data*/
+02/tinydb/tinydb*/
+02/tinydb/samples*/
 
 *.log
 *.aux
