@@ -12,6 +12,11 @@
 *.a
 
 *.tar.gz
+*.zip
+*.pdf
+*tinydb/data*/
+*tinydb/tinydb*/
+*tinydb/samples*/
 
 *.log
 *.aux
