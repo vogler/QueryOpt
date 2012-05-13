@@ -13,7 +13,6 @@ public class Parser {
 	// (and binding.attribute=(binding.attribute|constant))*
 	public static void main(String[] args) throws java.io.IOException {
 		Database db = Database.open("../data/uni");
-		Executor executor = new Executor(db);
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		
 		System.out.println("Enter your query below. Type 'quit' to exit.");
@@ -24,8 +23,10 @@ public class Parser {
 			
 			try{
 				Query query = Query.parse(line);
-				QueryPlan queryPlan = PlanGenerator.parse(query);
-				executor.execute(queryPlan);
+				PlanGenerator planGenerator = new PlanGenerator(db);
+				QueryPlan queryPlan = planGenerator.parse(query);
+				queryPlan.print();
+				Executor.execute(queryPlan);
 			}catch(Exception e){
 				continue;
 			}

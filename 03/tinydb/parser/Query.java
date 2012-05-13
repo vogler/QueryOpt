@@ -10,11 +10,11 @@ import java.util.regex.Pattern;
 public class Query {
 	
 	public List<String> attributes;
-	public List<String> relations;
-	public List<String> conditions;
+	public List<PairRelation> relations;
+	public List<PairCondition> conditions;
 	public boolean star = false;
 
-	private Query(List<String> attributes, List<String> relations, List<String> conditions){
+	private Query(List<String> attributes, List<PairRelation> relations, List<PairCondition> conditions){
 		this.attributes = attributes;
 		this.relations = relations;
 		this.conditions = conditions;
@@ -63,7 +63,8 @@ public class Query {
 		bw.write("joinconditions: "+joincond);
 		bw.close();
 		
-		Query query = new Query(splitAndTrim(selections, ","), splitAndTrim(relations, ","), splitAndTrim(joincond, " and "));
+		Query query = new Query(splitAndTrim(selections, ","), PairRelation.parse(splitAndTrim(relations, ",")),
+				PairCondition.parse(splitAndTrim(joincond, " and ")));
 		return query;
 	}
 	
