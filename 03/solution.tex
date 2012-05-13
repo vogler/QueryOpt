@@ -1,0 +1,156 @@
+\documentclass[11pt,a4paper]{scrartcl}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{graphicx}
+
+
+\def\ojoin{\setbox0=\hbox{$\bowtie$}%
+  \rule[-.02ex]{.25em}{.4pt}\llap{\rule[\ht0]{.25em}{.4pt}}}
+\def\leftouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie}}
+\def\rightouterjoin{\mathbin{\bowtie\mkern-5.8mu\ojoin}}
+\def\fullouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie\mkern-5.8mu\ojoin}}
+
+\begin{document}
+
+\author{Johannes Merkle\\Ralf Vogler}
+\title{Query Optimization}
+\subtitle{2. Exercise}
+
+\maketitle
+
+\section*{Exercise 1}
+
+\subsubsection*{Part 1}
+The expressions are not equal. Example:\\
+
+\begin{minipage}{.2\textwidth}
+\begin{tabular}[t]{|c|c|}
+\hline
+  \multicolumn{2}{|c|}{R} \\
+  \hline
+  A & B\\ \hline \hline
+  $a_1$ & $b_1$\\
+  $a_1$ & $b_2$\\
+  $a_2$ & $b_1$\\
+  \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}{.2\textwidth}
+\begin{tabular}[t]{|c|c|}
+\hline
+  \multicolumn{2}{|c|}{S} \\
+  \hline
+  A & B\\ \hline \hline
+  $a_1$ & $b_1$\\
+  \hline  
+\end{tabular}
+\end{minipage}\\
+
+ results in\\
+
+\begin{minipage}{.2\textwidth}
+\begin{tabular}{|c|}
+\hline
+  $\prod_A(R-S)$\\ \hline
+  A\\ \hline \hline
+  $a_1$\\ \hline
+  $a_2$\\
+  \hline  
+\end{tabular}
+\end{minipage}
+\begin{minipage}{.2\textwidth}
+\begin{tabular}{|c|}
+\hline
+  $\prod_A(R)-\prod_A(S)$s\\ \hline
+  A\\ \hline \hline
+  $a_2$\\
+  \hline  
+\end{tabular}
+\end{minipage}\\
+
+
+\subsubsection*{Part 2}
+
+Those expressions are not equal either. Example:\\
+
+\begin{minipage}{.2\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+  \multicolumn{2}{|c|}{R} \\
+  \hline
+  $A_R$ & $A_J$\\ \hline \hline
+  1 & x\\
+  2 & a\\
+  \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}{.2\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+  \multicolumn{2}{|c|}{S} \\
+  \hline
+  $A_S$ & $A_J$\\ \hline \hline
+  3 & a\\
+  \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}{.2\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+  \multicolumn{2}{|c|}{T} \\
+  \hline
+  $A_T$ & $A_J$\\ \hline \hline
+  4 & x\\
+  5 & a\\
+  \hline
+\end{tabular}
+\end{minipage}\\
+
+results in:\\
+
+\begin{minipage}{.3\textwidth}
+\begin{tabular}{|c|c|c|c|}
+\hline
+  \multicolumn{4}{|c|}{$(R \leftouterjoin S)\leftouterjoin T$} \\
+  \hline
+  $A_R$ & $A_J$ & $A_S$ & $A_T$\\ \hline \hline
+  1 & x & & 4\\
+  2 & a & 3 & 5\\
+  \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+\begin{tabular}{|c|c|c|c|}
+\hline
+  \multicolumn{4}{|c|}{$R \leftouterjoin (S\leftouterjoin T)$} \\
+  \hline
+$A_R$ & $A_J$ & $A_S$ & $A_T$\\ \hline \hline
+  1 & x & & \\
+  2 & a & 3 & 5\\
+  \hline
+\end{tabular}
+\end{minipage}\\
+
+
+\section*{Exercise 2}
+
+\subsubsection*{Part 1}
+
+If $R1.x$ is a key, we can have at most 1 entry, as keys are unique. In this case, the selectivity is $\frac{1}{|R1|}$. If it is not a key, a way to estimate the selectivity is to assume uniform distribution of values of the domain and therefore the selectivity can be estimated as $\frac{|R1.x|}{|R1|}$ where $|R1.x|$ denotes the number of values of the domain.
+
+\subsubsection*{Part 2}
+
+Given an estimation for the selectivity of $\sigma_{R1.x=c}$, we can estimate the selectivity of $\Join_{R1.x=R2.y}$ as $selectivity(\sigma_{R1.x=c})*selectivity(\sigma_{R1.x=c})$, though this would not be very accurate.
+
+\section*{Exercise 3}
+
+see files in folder \textit{tinydb}
+
+\end{document}
