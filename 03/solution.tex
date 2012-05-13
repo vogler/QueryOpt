@@ -28,35 +28,30 @@
 \section*{Exercise 1}
 
 \subsubsection*{1. nested loop join}
-
 \begin{verbatim}
 select *
 from a, b
 where a.x+b.x>1000
 \end{verbatim}
+Both relations are rather small and fit in memory at the same time.
 
-Both relations are rather small and fit into the memory at the same time.
 
 \subsubsection*{2. block nested loop join}
-
 \begin{verbatim}
 select *
 from a, b
 where a.x+b.x>1000
 \end{verbatim}
+The same example query again, but this time relation 1 is much bigger and does not fit in memory.
 
-The same example query again, but this time relation 1 is much bigger and does not fit into memory.
 
 \subsubsection*{3. sort-merge join}
-
-
 \begin{verbatim}
 select *
 from a, b
 where a.x=b.x
 \end{verbatim}
-
-Some equi-join where attribute x is a unique number (e.g. some id)
+Some equi-join where attribute x is for example an id. The costs are normally in $\mathcal{O}(n*log(n))$, or in the best case (if the relations are already sorted) in $\mathcal{O}(|b| + |a|)$ (costs of the merge).
 
 
 \section*{Exercise 2}
@@ -69,18 +64,39 @@ where 	R1.a=R2.a AND
 		R3.c=R4.c AND
 		R3.d=R5.d
 \end{verbatim}
-
 with the following properties and selectivities:\\
-$|R_1|=1000$
-$|R_2|=1000$
-$|R_3|=1000$
-$|R_4|=2$
-$|R_5|=2$\\
-$f_{1,2}=0.0001$
-$f_{2,3}=0.99$
-$f_{3,4}=0.1$
-$f_{3,5}=0.1$
-
+\begin{minipage}{.2\textwidth}
+\begin{align*}
+|R_1|&=1000\\
+|R_2|&=1000\\
+|R_3|&=1000\\
+|R_4|&=2\\
+|R_5|&=2
+\end{align*}
+\end{minipage}
+\begin{minipage}{.2\textwidth}
+\begin{align*}
+f_{1,2}&=0.0001\\
+f_{2,3}&=0.99\\
+f_{3,4}&=0.1\\
+f_{3,5}&=0.1
+\end{align*}
+\end{minipage}\\
 all other selectivities are 1.
+This yields the following values for $C_{out}$:
+\begin{align*}
+R1 \bowtie_{R1.a=R2.a} R2 &= 1000*1000*0.0001 = 100\\
+R2 \bowtie_{R2.b=R3.b} R3 &= 1000*1000*0.99 = 990000\\
+R3 \bowtie_{R3.c=R4.c} R4 &= 1000*2*0.1 = 200\\
+R3 \bowtie_{R3.d=R5.d} R5 &= 1000*2*0.1 = 200\\
+\end{align*}
+
+
+\section*{Exercise 3}
+See folder tinydb/parser.
+
+
+\section*{Exercise 4}
+
 
 \end{document}

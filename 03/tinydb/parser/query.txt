@@ -1,0 +1,3 @@
+relations: studenten s,hoeren h
+selections: matrnr
+joinconditions: s.matrnr=h.matrnr
