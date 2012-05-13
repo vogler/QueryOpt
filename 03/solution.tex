@@ -21,136 +21,66 @@
 
 \author{Johannes Merkle\\Ralf Vogler}
 \title{Query Optimization}
-\subtitle{2. Exercise}
+\subtitle{3. Exercise}
 
 \maketitle
 
 \section*{Exercise 1}
 
-\subsubsection*{Part 1}
-The expressions are not equal. Example:\\
+\subsubsection*{1. nested loop join}
 
-\begin{minipage}{.2\textwidth}
-\begin{tabular}[t]{|c|c|}
-\hline
-  \multicolumn{2}{|c|}{R} \\
-  \hline
-  A & B\\ \hline \hline
-  $a_1$ & $b_1$\\
-  $a_1$ & $b_2$\\
-  $a_2$ & $b_1$\\
-  \hline
-\end{tabular}
-\end{minipage}
-\begin{minipage}{.2\textwidth}
-\begin{tabular}[t]{|c|c|}
-\hline
-  \multicolumn{2}{|c|}{S} \\
-  \hline
-  A & B\\ \hline \hline
-  $a_1$ & $b_1$\\
-  \hline  
-\end{tabular}
-\end{minipage}\\
+\begin{verbatim}
+select *
+from a, b
+where a.x+b.x>1000
+\end{verbatim}
 
- results in\\
+Both relations are rather small and fit into the memory at the same time.
 
-\begin{minipage}{.2\textwidth}
-\begin{tabular}{|c|}
-\hline
-  $\prod_A(R-S)$\\ \hline
-  A\\ \hline \hline
-  $a_1$\\ \hline
-  $a_2$\\
-  \hline  
-\end{tabular}
-\end{minipage}
-\begin{minipage}{.2\textwidth}
-\begin{tabular}{|c|}
-\hline
-  $\prod_A(R)-\prod_A(S)$s\\ \hline
-  A\\ \hline \hline
-  $a_2$\\
-  \hline  
-\end{tabular}
-\end{minipage}\\
+\subsubsection*{2. block nested loop join}
+
+\begin{verbatim}
+select *
+from a, b
+where a.x+b.x>1000
+\end{verbatim}
+
+The same example query again, but this time relation 1 is much bigger and does not fit into memory.
+
+\subsubsection*{3. sort-merge join}
 
 
-\subsubsection*{Part 2}
+\begin{verbatim}
+select *
+from a, b
+where a.x=b.x
+\end{verbatim}
 
-Those expressions are not equal either. Example:\\
-
-\begin{minipage}{.2\textwidth}
-\begin{tabular}{|c|c|}
-\hline
-  \multicolumn{2}{|c|}{R} \\
-  \hline
-  $A_R$ & $A_J$\\ \hline \hline
-  1 & x\\
-  2 & a\\
-  \hline
-\end{tabular}
-\end{minipage}
-\begin{minipage}{.2\textwidth}
-\begin{tabular}{|c|c|}
-\hline
-  \multicolumn{2}{|c|}{S} \\
-  \hline
-  $A_S$ & $A_J$\\ \hline \hline
-  3 & a\\
-  \hline
-\end{tabular}
-\end{minipage}
-\begin{minipage}{.2\textwidth}
-\begin{tabular}{|c|c|}
-\hline
-  \multicolumn{2}{|c|}{T} \\
-  \hline
-  $A_T$ & $A_J$\\ \hline \hline
-  4 & x\\
-  5 & a\\
-  \hline
-\end{tabular}
-\end{minipage}\\
-
-results in:\\
-
-\begin{minipage}{.3\textwidth}
-\begin{tabular}{|c|c|c|c|}
-\hline
-  \multicolumn{4}{|c|}{$(R \leftouterjoin S)\leftouterjoin T$} \\
-  \hline
-  $A_R$ & $A_J$ & $A_S$ & $A_T$\\ \hline \hline
-  1 & x & & 4\\
-  2 & a & 3 & 5\\
-  \hline
-\end{tabular}
-\end{minipage}
-\begin{minipage}{.3\textwidth}
-\begin{tabular}{|c|c|c|c|}
-\hline
-  \multicolumn{4}{|c|}{$R \leftouterjoin (S\leftouterjoin T)$} \\
-  \hline
-$A_R$ & $A_J$ & $A_S$ & $A_T$\\ \hline \hline
-  1 & x & & \\
-  2 & a & 3 & 5\\
-  \hline
-\end{tabular}
-\end{minipage}\\
+Some equi-join where attribute x is a unique number (e.g. some id)
 
 
 \section*{Exercise 2}
 
-\subsubsection*{Part 1}
+\begin{verbatim}
+select *
+from R1,R2,R3,R4,R5
+where 	R1.a=R2.a AND
+		R2.b=R3.b AND
+		R3.c=R4.c AND
+		R3.d=R5.d
+\end{verbatim}
 
-If $R1.x$ is a key, we can have at most 1 entry, as keys are unique. In this case, the selectivity is $\frac{1}{|R1|}$. If it is not a key, a way to estimate the selectivity is to assume uniform distribution of values of the domain and therefore the selectivity can be estimated as $\frac{|R1.x|}{|R1|}$ where $|R1.x|$ denotes the number of values of the domain.
+with the following properties and selectivities:\\
+$|R_1|=1000$
+$|R_2|=1000$
+$|R_3|=1000$
+$|R_4|=2$
+$|R_5|=2$\\
+$f_{1,2}=0.0001$
+$f_{2,3}=0.99$
+$f_{3,4}=0.1$
+$f_{3,5}=0.1$
 
-\subsubsection*{Part 2}
-
-Given an estimation for the selectivity of $\sigma_{R1.x=c}$, we can estimate the selectivity of $\Join_{R1.x=R2.y}$ as $selectivity(\sigma_{R1.x=c})*selectivity(\sigma_{R1.x=c})$, though this would not be very accurate.
-
-\section*{Exercise 3}
-
-see files in folder \textit{tinydb}
+all other selectivities are 1.
 
 \end{document}
