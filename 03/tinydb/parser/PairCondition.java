@@ -26,4 +26,8 @@ public class PairCondition {
 	public String toString(){
 		return a+"="+b;
 	}
+	
+	public PairCondition getBindings(){
+		return new PairCondition(a.split("\\.")[0], b.split("\\.")[0]);
+	}
 }

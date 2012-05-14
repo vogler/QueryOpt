@@ -97,6 +97,20 @@ See folder tinydb/parser.
 
 
 \section*{Exercise 4}
-
+% select * from lineitem l, orders o, customer c where l.l_orderkey=o.o_orderkey and o.o_custkey=c.c_custkey and c.c_name='Customer#000014993'
+Raised heap space using \verb|-Xmx1024M|.\\
+2nd exercise: started 3:40 (but only used around 30MB RAM)\\
+3rd exercise: 7726ms
+\begin{verbatim}
+Execution plan:
+Selection c with c.c_name='Customer#000014993'
+HashJoin l & o with l.l_orderkey=o.o_orderkey
+Getting o from map of connected components/selections...
+Getting c from map of connected components/selections...
+HashJoin o & c with o.o_custkey=c.c_custkey
+\end{verbatim}
+The new version is much faster because it works without using any cross products.\\
+Old version: 2 cross products + selections\\
+New version: 2 hash-joins
 
 \end{document}

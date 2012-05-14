@@ -47,7 +47,8 @@ public class Query {
 		}
 		// binding.attribute=(binding.attribute|constant)
 		// (and binding.attribute=(binding.attribute|constant))*
-		p = Pattern.compile("\\w+\\.\\w+=(\\w+\\.\\w+|\"?\\w+\"?)( and \\w+\\.\\w+=(\\w+\\.\\w+|\"?\\w+\"?))*");
+//		p = Pattern.compile("\\w+\\.\\w+\\s*=\\s*(\\w+\\.\\w+|('|\")?\\w+('|\")?)( and \\w+\\.\\w+\\s*=\\s*(\\w+\\.\\w+|('|\")?\\w+('|\")?))*");
+		p = Pattern.compile(".+\\..+\\s*=\\s*(.+\\..+|('|\")?.+('|\")?)( and .+\\..+\\s*=\\s*(.+\\..+|('|\")?.+('|\")?))*");
 		if(!p.matcher(joincond).matches()){
 			System.err.println("Join conditions don't match the pattern: "+p.toString());
 			System.err.println("Your input: "+joincond);

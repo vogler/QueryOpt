@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import tinydb.Database;
 import tinydb.Register;
@@ -25,6 +27,8 @@ public class Executor {
 	}
 	
 	public void execute(Query query) throws Exception{
+		long start = System.currentTimeMillis();
+		
 		// handle relations
 		Map<String, Table> h_rel = new HashMap<String, Table>();
 		Map<String, Tablescan> h_scans = new HashMap<String, Tablescan>();
@@ -66,7 +70,7 @@ public class Executor {
 			}
 			Register a = h_scans.get(a_binding[0]).getOutput()[a_attr];
 			// right side of condition
-			Register b;
+			Register b = null;
 			if(sb.contains(".")){
 				String[] b_binding = sb.split("\\.");
 				Table t_b = h_rel.get(b_binding[0]);
@@ -83,11 +87,21 @@ public class Executor {
 				cond_join.add(new Condition(a, b));
 			}else{
 				// constant
-				try{
-					int i = Integer.parseInt(sb);
-					b = new Register(i);
-				}catch(NumberFormatException e){
-					b = new Register(sb);
+				if(sb.matches("\\d*\\.?\\d*")){ // 1, 1., .1, 1.1, . :(
+					try{
+						// first try double then integer, if integer fails double should be kept, otherwise use string
+						b = new Register(Double.parseDouble(sb));
+						b = new Register(Integer.parseInt(sb));
+					}catch(NumberFormatException e){
+						// string
+						if(b==null){
+							b = new Register(sb);
+						}
+					}
+				}else{
+					// string
+					Matcher m = Pattern.compile("'(.*)'|\"(.*)\"").matcher(sb);
+					b = new Register(m.matches() ? m.group(1) != null ? m.group(1) : m.group(2) : sb);
 				}
 				
 				if(!cond_const.containsKey(a_binding[0])){
@@ -149,5 +163,8 @@ public class Executor {
 			
 		}
 		out.close();
+		
+		long end = System.currentTimeMillis();
+		System.out.println("Execution time: "+(end-start)+"ms");
 	}
 }

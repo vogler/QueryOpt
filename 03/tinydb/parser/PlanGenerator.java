@@ -2,9 +2,11 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +14,7 @@ import tinydb.Database;
 import tinydb.Register;
 import tinydb.Table;
 import tinydb.operator.CrossProduct;
+import tinydb.operator.HashJoin;
 import tinydb.operator.Operator;
 import tinydb.operator.Projection;
 import tinydb.operator.Selection;
@@ -55,7 +58,7 @@ public class PlanGenerator {
 			Register b = null;
 			if(c.b.contains(".")){
 				b = getRegister(c.b, c);
-				cond_join.add(new Condition(a, b));
+				cond_join.add(new Condition(a, b, c));
 			}else{
 				// constant
 				if(c.b.matches("\\d*\\.?\\d*")){ // 1, 1., .1, 1.1, . :(
@@ -78,32 +81,72 @@ public class PlanGenerator {
 				if(!cond_const.containsKey(a_binding)){ // no conditions for binding yet
 					cond_const.put(a_binding, new ArrayList<Condition>());
 				}
-				cond_const.get(a_binding).add(new Condition(a, b));
+				cond_const.get(a_binding).add(new Condition(a, b, c));
 			}
 		}
 		
 		
+		// query plan
+		List<String> plan = new ArrayList<String>();
+		
 		// handle selections
-		// accumulator for cross products
-		Operator cp = null;
+		Map<String, Operator> h_selections = new HashMap<String, Operator>(h_scans);
+		Map<String, Operator> connectedComp = new HashMap<String, Operator>();
 		// push selections with constants down to base relations
 		for(Entry<String, Tablescan> e : h_scans.entrySet()){
 			Operator op = e.getValue();
 			if(cond_const.containsKey(e.getKey())){
 				for(Condition cond : cond_const.get(e.getKey())){
 					op = new Selection(op, cond.a, cond.b);
+					plan.add("Selection "+e.getKey()+" with "+cond.pair);
 				}
-			}
-			if(cp == null){
-				cp = op; // first selection
-			}else{
-				cp = new CrossProduct(cp, op);
+				h_selections.put(e.getKey(), op);
+				connectedComp.put(e.getKey(), op);
 			}
 		}
-		// do join conditions on cross product
-		Operator select = cp;
+		
+		// join connected components
+		Map<String, Set<String>> connectedBindings = new HashMap<String, Set<String>>();
 		for(Condition cond : cond_join){
-			select = new Selection(select, cond.a, cond.b);
+			PairCondition bindings = cond.pair.getBindings();
+			if(connectedComp.containsKey(bindings.a)){
+				plan.add("Getting "+bindings.a+" from map of connected components/selections...");
+			}
+			if(connectedComp.containsKey(bindings.b)){
+				plan.add("Getting "+bindings.b+" from map of connected components/selections...");
+			}
+			Operator left = connectedComp.containsKey(bindings.a) ? connectedComp.get(bindings.a) : h_selections.get(bindings.a);
+			Operator right = connectedComp.containsKey(bindings.b) ? connectedComp.get(bindings.b) : h_selections.get(bindings.b);
+			Operator select = new HashJoin(left, right, cond.a, cond.b);
+			
+			// update list of connected bindings and components
+			if(!connectedBindings.containsKey(bindings.a)){
+				connectedBindings.put(bindings.a, new HashSet<String>());
+			}
+			if(!connectedBindings.containsKey(bindings.b)){
+				connectedBindings.put(bindings.b, new HashSet<String>());
+			}
+			connectedBindings.get(bindings.a).add(bindings.b);
+			connectedBindings.get(bindings.b).add(bindings.a);
+			for(String s : connectedBindings.get(bindings.a)){
+				connectedComp.put(s, select);
+			}
+			for(String s : connectedBindings.get(bindings.b)){
+				connectedComp.put(s, select);
+			}
+			
+			plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair);
+		}
+		
+		// use cross product to join connected components
+		Operator select = null;
+		for(Operator op : new HashSet<Operator>(connectedComp.values())){ // gets distinct connected components from map
+			if(select == null){
+				select = op;
+			}else{
+				select = new CrossProduct(select, op);
+				plan.add("CrossProduct "+select+" & "+op);
+			}
 		}
 		
 		
@@ -119,6 +162,7 @@ public class PlanGenerator {
 					if(i != -1){
 						Register r = h_scans.get(e.getKey()).getOutput()[i];
 						a_proj.add(r);
+						plan.add("Projection "+e.getKey()+"."+attr);
 						continue attrloop;
 					}
 				}
@@ -128,7 +172,7 @@ public class PlanGenerator {
 			select = project;
 		}
 		
-		return new QueryPlan(select);
+		return new QueryPlan(select, plan);
 	}
 	
 	

@@ -12,7 +12,8 @@ public class Parser {
 	// where binding.attribute=(binding.attribute|constant)
 	// (and binding.attribute=(binding.attribute|constant))*
 	public static void main(String[] args) throws java.io.IOException {
-		Database db = Database.open("../data/uni");
+//		Database db = Database.open("../data/uni");
+		Database db = Database.open("../../../03/tpch/tpch");
 		Executor executor = new Executor(db);
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		
