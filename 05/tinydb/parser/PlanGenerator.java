@@ -127,7 +127,59 @@ public class PlanGenerator {
 		
 		// join connected components
 		Map<String, Set<String>> connectedBindings = new HashMap<String, Set<String>>();
+		
+		//here do:
+		//calculate selectivity for all joins
+		Map<Condition, Double> selectivities = new HashMap<Condition, Double>();
 		for(Condition cond : cond_join){
+			PairCondition bindings = cond.pair.getBindings();
+			// estimate selectivity for join predicate
+			double selectivity = 1;
+			Table table_a = h_tables.get(bindings.a);
+			Table table_b = h_tables.get(bindings.b);
+			Attribute attr_a = getAttribute(table_a, cond.pair.getAttributes().a);
+			Attribute attr_b = getAttribute(table_b, cond.pair.getAttributes().b);
+			if (attr_a == null || attr_b == null)
+				continue;
+			if (attr_a.getKey() && attr_b.getKey()) { // both keys
+				selectivity = 1. / Math.max(table_a.getCardinality(), table_b.getCardinality());
+			} else if (!attr_a.getKey() && !attr_b.getKey()) { // both not keys
+				selectivity = 1. / Math.max(attr_a.getUniqueValues(), attr_b.getUniqueValues());
+			} else { // exactly one key
+				selectivity = 1. / (attr_a.getKey() ? table_a.getCardinality() : table_b.getCardinality());
+			}
+			selectivities.put(cond, selectivity);
+		}
+		class Pair
+		{  public Pair(Condition c, double s)
+		   {  first = c;
+		      second = s;
+		   }
+		   public Condition getFirst()
+		   {  return first;
+		   }
+		   public double getSecond()
+		   {  return second;
+		   }
+
+		   private Condition first;
+		   private double second;
+		}
+		
+		while (!cond_join.isEmpty()){ 	//repeat until cond_join is empty
+			Pair min = new Pair(null, Double.MAX_VALUE);
+			//calculate intermediate results for all possible remaining joins
+			for(Condition cond : cond_join){
+				PairCondition bindings = cond.pair.getBindings();
+				Operator left = connectedComp.containsKey(bindings.a) ? connectedComp.get(bindings.a) : h_selections.get(bindings.a);
+				Operator right = connectedComp.containsKey(bindings.b) ? connectedComp.get(bindings.b) : h_selections.get(bindings.b);
+				double tmp = selectivities.get(cond)*left.getOutput().length*right.getOutput().length;
+				if (tmp<min.getSecond()) min = new Pair(cond, tmp);
+			}
+			//pick minimal int. result, remove join from cond_join
+			Condition cond = min.getFirst();
+			cond_join.remove(cond);
+			//execute (TODO: improvements possible?)
 			PairCondition bindings = cond.pair.getBindings();
 			if(connectedComp.containsKey(bindings.a)){
 				plan.add("Getting "+bindings.a+" from map of connected components/selections...");
@@ -171,6 +223,7 @@ public class PlanGenerator {
 			}
 			edges.add(new Edge(cond.pair, selectivity));
 		}
+
 		
 		// use cross product to join connected components
 		Operator select = null;
