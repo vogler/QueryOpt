@@ -128,7 +128,6 @@ public class PlanGenerator {
 		// join connected components
 		Map<String, Set<String>> connectedBindings = new HashMap<String, Set<String>>();
 		
-		//here do:
 		//calculate selectivity for all joins
 		Map<Condition, Double> selectivities = new HashMap<Condition, Double>();
 		for(Condition cond : cond_join){
@@ -168,12 +167,36 @@ public class PlanGenerator {
 		
 		while (!cond_join.isEmpty()){ 	//repeat until cond_join is empty
 			Pair min = new Pair(null, Double.MAX_VALUE);
+			double c_a;
+			double c_b;
+			Operator o;
 			//calculate intermediate results for all possible remaining joins
 			for(Condition cond : cond_join){
 				PairCondition bindings = cond.pair.getBindings();
-				Operator left = connectedComp.containsKey(bindings.a) ? connectedComp.get(bindings.a) : h_selections.get(bindings.a);
-				Operator right = connectedComp.containsKey(bindings.b) ? connectedComp.get(bindings.b) : h_selections.get(bindings.b);
-				double tmp = selectivities.get(cond)*left.getOutput().length*right.getOutput().length;
+				if (connectedComp.containsKey(bindings.a)){//TODO: determine cardinality of a join
+					c_a = 0;
+					o = connectedComp.get(bindings.a);
+					o.open();
+					while(o.next()) c_a++;
+					o.close();
+				} else {
+					c_a = h_tables.get(bindings.a).getCardinality();
+				}
+				if (connectedComp.containsKey(bindings.b)){
+					c_b = 0;
+					o = connectedComp.get(bindings.b);
+					o.open();
+					while(o.next()) c_b++;
+					o.close();
+				} else {
+					c_b = h_tables.get(bindings.b).getCardinality();
+				}
+//				Operator left = connectedComp.containsKey(bindings.a) ? connectedComp.get(bindings.a) : h_selections.get(bindings.a);
+//				Operator right = connectedComp.containsKey(bindings.b) ? connectedComp.get(bindings.b) : h_selections.get(bindings.b);
+				double tmp = selectivities.get(cond)*c_a*c_b;
+				System.out.println(bindings.a+" & "+bindings.b+" with "+cond.pair+" has cost of "+min.getSecond()+
+				" ("+selectivities.get(cond)+"*"+c_a+"*"+c_b+")");
+				
 				if (tmp<min.getSecond()) min = new Pair(cond, tmp);
 			}
 			//pick minimal int. result, remove join from cond_join
@@ -206,7 +229,7 @@ public class PlanGenerator {
 			for(String s : connectedBindings.get(bindings.b)){
 				connectedComp.put(s, select);
 			}
-			plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair);
+			plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+min.getSecond());
 			// estimate selectivity for join predicate
 			double selectivity = 1;
 			Table table_a = h_tables.get(bindings.a);
