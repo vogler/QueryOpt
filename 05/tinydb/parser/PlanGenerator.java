@@ -1,14 +1,18 @@
 package parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.sun.jmx.remote.util.OrderClassLoaders;
 
 import parser.querygraph.Edge;
 import parser.querygraph.Node;
@@ -92,8 +96,8 @@ public class PlanGenerator {
 		// query plan
 		List<String> plan = new ArrayList<String>();
 		// query graph
-		List<Node> nodes = new ArrayList<Node>();
-		List<Edge> edges = new ArrayList<Edge>();
+		Map<String, Node> nodes = new HashMap<String, Node>();
+		Map<String[], Edge> edges = new HashMap<String[], Edge>();
 		
 		
 		// handle selections
@@ -122,9 +126,24 @@ public class PlanGenerator {
 				h_selections.put(e.getKey(), op);
 				connectedComp.put(e.getKey(), op);
 			}
-			nodes.add(new Node(q.getRelation(e.getKey()), pushedCond, (int) Math.ceil(cardinality)));
+			nodes.put(e.getKey(), new Node(q.getRelation(e.getKey()), table, pushedCond, (int) Math.ceil(cardinality)));
 		}
 		
+		// predicates of edges
+		for(Condition cond : cond_join){
+			PairCondition bindings = cond.pair.getBindings();
+			Node node_a = nodes.get(bindings.a);
+			Node node_b = nodes.get(bindings.b);
+			String[] key = new String[]{bindings.a, bindings.b};
+			if(edges.containsKey(key)){
+				edges.get(key).predicates.add(cond.pair);
+			}else{
+				List<PairCondition> predicates = new ArrayList<PairCondition>();
+				predicates.add(cond.pair);
+				edges.put(key, new Edge(node_a, node_b, predicates));
+			}
+		}
+	
 		// join connected components
 		Map<String, Set<String>> connectedBindings = new HashMap<String, Set<String>>();
 		for(Condition cond : cond_join){
@@ -155,21 +174,18 @@ public class PlanGenerator {
 				connectedComp.put(s, select);
 			}
 			plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair);
-			// estimate selectivity for join predicate
-			double selectivity = 1;
-			Table table_a = h_tables.get(bindings.a);
-			Table table_b = h_tables.get(bindings.b);
-			Attribute attr_a = getAttribute(table_a, cond.pair.getAttributes().a);
-			Attribute attr_b = getAttribute(table_b, cond.pair.getAttributes().b);
-			if(attr_a == null || attr_b == null) continue;
-			if(attr_a.getKey() && attr_b.getKey()){ // both keys
-				selectivity = 1./Math.max(table_a.getCardinality(), table_b.getCardinality());
-			}else if(!attr_a.getKey() && !attr_b.getKey()){ // both not keys
-				selectivity = 1./Math.max(attr_a.getUniqueValues(), attr_b.getUniqueValues());
-			}else{ // exactly one key
-				selectivity = 1./(attr_a.getKey() ? table_a.getCardinality() : table_b.getCardinality());
-			}
-			edges.add(new Edge(cond.pair, selectivity));
+		}
+		
+		// GOO
+		List<Operator> t = new ArrayList<Operator>(h_scans.values());
+		while(t.size() > 1){
+			Edge e = getMin((List<Edge>) edges.values());
+			Table t1 = e.node_a.table; // TODO
+			Table t2 = e.node_a.table;
+			t.remove(t1);
+			t.remove(t2);
+			Operator select = new HashJoin(t1, t2, e.predicates.get(0).a, e.predicates.get(0).b); // TODO
+			t.add(select);
 		}
 		
 		// use cross product to join connected components
@@ -206,10 +222,22 @@ public class PlanGenerator {
 			select = project;
 		}
 		
-		return new QueryPlan(select, plan, nodes, edges);
+		return new QueryPlan(select, plan, (List<Node>) nodes.values(), (List<Edge>) edges.values());
 	}
 	
+	Edge getMin(List<Edge> edges){
+		TreeMap<Integer, Edge> map = new TreeMap<Integer, Edge>();
+		for(Edge e : edges){
+			map.put(getT(e), e);
+		}
+		return map.firstEntry().getValue();
+	}
 	
+	private Integer getT(Edge e) {
+		return (int) e.getSelectivity()*e.node_a.cardinality*e.node_b.cardinality;
+	}
+
+
 	private Register getRegister(String s, PairCondition c) throws Exception{
 		String[] a = s.split("\\.");
 		String binding = a[0];
@@ -228,7 +256,7 @@ public class PlanGenerator {
 		return r;
 	}
 	
-	private Attribute getAttribute(Table table, String attr){
+	public static Attribute getAttribute(Table table, String attr){
 		int iattr = table.findAttribute(attr);
 		if(iattr == -1) return null;
 		return table.getAttribute(iattr);

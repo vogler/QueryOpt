@@ -5,15 +5,18 @@ import java.util.List;
 
 import parser.PairCondition;
 import parser.PairRelation;
+import tinydb.Table;
 
 public class Node {
 
-	private PairRelation relation;
-	private List<PairCondition> predicates;
-	private int cardinality;
+	public PairRelation relation;
+	public List<PairCondition> predicates;
+	public int cardinality;
+	public Table table;
 
-	public Node(PairRelation relation, List<PairCondition> predicates, int cardinality){
+	public Node(PairRelation relation, Table table, List<PairCondition> predicates, int cardinality){
 		this.relation = relation;
+		this.table = table;
 		this.predicates = predicates;
 		this.cardinality = cardinality;
 	}
