@@ -35,6 +35,8 @@ public class PlanGenerator {
 	}
 
 	public QueryPlan parse(Query q) throws Exception {
+		Map<String,Double> cardinalities = new HashMap<String,Double>();
+		Map<String,Double> costs = new HashMap<String,Double>();
 		h_tables = new HashMap<String, Table>();
 		h_scans = new HashMap<String, Tablescan>();
 		for(PairRelation r : q.relations){
@@ -44,6 +46,8 @@ public class PlanGenerator {
 				throw new Exception();
 			}
 			h_tables.put(r.binding, table);
+			cardinalities.put(r.binding, (double) table.getCardinality());
+			costs.put(r.binding, 0.0);
 			if(!h_scans.containsKey(r.binding)){ // TODO enough to save per table instead of binding?
 				Tablescan tablescan = new Tablescan(table);
 				h_scans.put(r.binding, tablescan);
@@ -122,6 +126,8 @@ public class PlanGenerator {
 				h_selections.put(e.getKey(), op);
 				connectedComp.put(e.getKey(), op);
 			}
+			cardinalities.put(e.getKey(), cardinality);
+			costs.put(e.getKey(), 0.0);
 			nodes.add(new Node(q.getRelation(e.getKey()), pushedCond, (int) Math.ceil(cardinality)));
 		}
 		
@@ -166,41 +172,31 @@ public class PlanGenerator {
 		}
 		
 		while (!cond_join.isEmpty()){ 	//repeat until cond_join is empty
-			Pair min = new Pair(null, Double.MAX_VALUE);
+			Condition cond_min = null;
+			double card_min = Double.MAX_VALUE;
+			double cost_min = 0;
+			//Pair min = new Pair(null, Double.MAX_VALUE);
 			double c_a;
 			double c_b;
 			Operator o;
 			//calculate intermediate results for all possible remaining joins
 			for(Condition cond : cond_join){
 				PairCondition bindings = cond.pair.getBindings();
-				if (connectedComp.containsKey(bindings.a)){//TODO: determine cardinality of a join
-					c_a = 0;
-					o = connectedComp.get(bindings.a);
-					o.open();
-					while(o.next()) c_a++;
-					o.close();
-				} else {
-					c_a = h_tables.get(bindings.a).getCardinality();
-				}
-				if (connectedComp.containsKey(bindings.b)){
-					c_b = 0;
-					o = connectedComp.get(bindings.b);
-					o.open();
-					while(o.next()) c_b++;
-					o.close();
-				} else {
-					c_b = h_tables.get(bindings.b).getCardinality();
-				}
-//				Operator left = connectedComp.containsKey(bindings.a) ? connectedComp.get(bindings.a) : h_selections.get(bindings.a);
-//				Operator right = connectedComp.containsKey(bindings.b) ? connectedComp.get(bindings.b) : h_selections.get(bindings.b);
+				c_a = cardinalities.get(bindings.a);
+				c_b = cardinalities.get(bindings.b);
 				double tmp = selectivities.get(cond)*c_a*c_b;
-				System.out.println(bindings.a+" & "+bindings.b+" with "+cond.pair+" has cost of "+min.getSecond()+
+				System.out.println(bindings.a+" & "+bindings.b+" with "+cond.pair+" has cardinality of "+tmp+
 				" ("+selectivities.get(cond)+"*"+c_a+"*"+c_b+")");
 				
-				if (tmp<min.getSecond()) min = new Pair(cond, tmp);
+				if (tmp<card_min){
+					card_min = tmp;
+					cond_min = cond;
+					cost_min = tmp+costs.get(bindings.a)+costs.get(bindings.b);
+				}
+				
 			}
 			//pick minimal int. result, remove join from cond_join
-			Condition cond = min.getFirst();
+			Condition cond = cond_min;
 			cond_join.remove(cond);
 			//execute (TODO: improvements possible?)
 			PairCondition bindings = cond.pair.getBindings();
@@ -225,11 +221,15 @@ public class PlanGenerator {
 			connectedBindings.get(bindings.b).add(bindings.a);
 			for(String s : connectedBindings.get(bindings.a)){
 				connectedComp.put(s, select);
+				cardinalities.put(s, card_min);
+				costs.put(s, cost_min);
 			}
 			for(String s : connectedBindings.get(bindings.b)){
 				connectedComp.put(s, select);
+				cardinalities.put(s, card_min);
+				costs.put(s, cost_min);
 			}
-			plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+min.getSecond());
+			plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+cost_min);
 			// estimate selectivity for join predicate
 			double selectivity = 1;
 			Table table_a = h_tables.get(bindings.a);
