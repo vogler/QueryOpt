@@ -61,11 +61,21 @@ We need perform a BFS on the Querygraph to enumerate the relations. We start at 
 \{1,2,3,4,5\} &  \\
 \hline
 \end{tabular}
-\caption{Enumeration of the pairs. The left column shows the results of \textit{EnumerateCsg}, the right column the results of \textit{EnumerateCmp} for the given subgraph. A subgraph is denoted as a set containing the enumeration number.}
+\caption{Enumeration of the pairs. The left column shows the results of \textit{EnumerateCsg}, the right column contains the graphs that form a pair with the subgraph in the left column, in the order produced by \textit{EnumerateCmp}. A subgraph is denoted as a set containing the enumeration number.}
 \label{tab:dp}
 \end{table}
 
 \section*{Exercise 2}
+
+Step 1: compare $((R_0 \Join R_1) \Join R_3)$ to $((R_0 \Join R_3) \Join R_1)$:\\
+$C((R_0 \Join R_1) \Join R_3)=2020$, $C((R_0 \Join R_3) \Join R_1)=3000$\\
+Remove $R_0 \Join R_3$\\
+\includegraphics{graph/step1}
+
+Step 2: compare $((R_1 \Join R_2) \Join R_4)$ to $((R_1 \Join R_4) \Join R_2)$:\\
+$C((R_1 \Join R_2) \Join R_4)=25100$, $C((R_1 \Join R_4) \Join R_2)=30000$\\
+Remove $R_1 \Join R_4$\\
+\includegraphics{graph/step2}
 
 \section*{Exercise 3}
 
