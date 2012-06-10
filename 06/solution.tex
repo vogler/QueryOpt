@@ -26,6 +26,45 @@
 
 \section*{Exercise 1}
 
+We need perform a BFS on the Querygraph to enumerate the relations. We start at $R_0$ resulting in this order:\\
+\begin{enumerate}
+\item $R_0$
+\item $R_3$
+\item $R_1$
+\item $R_2$
+\item $R_4$
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\{5\} &  \\
+\{4\} &  \\
+\{3\} & \{4\},\{5\} \\
+\{3,4\} & \{5\} \\
+\{3,5\} & \{4\} \\
+\{3,4,5\} & \\
+\{2\} & \{4\},\{3,4\},\{3,4,5\} \\
+\{2,4\} & \{3\},\{3,5\} \\
+\{2,3,4\} & \{5\} \\
+\{2,3,4,5\} &  \\
+\{1\} & \{3\},\{3,4\},\{3,5\},\{3,4,5\},\{2\},\{2,4\},\{2,3,4\},\{2,3,4,5\} \\
+\{1,2\} & \{4\},\{3\},\{3,4\},\{3,5\},\{3,4,5\} \\
+\{1,3\} & \{5\},\{4\},\{2\},\{2,4\} \\
+\{1,2,3\} & \{5\},\{4\} \\
+\{1,2,4\} & \{3\},\{3,5\} \\
+\{1,3,4\} & \{5\},\{2\} \\
+\{1,3,5\} & \{4\},\{2\},\{2,4\} \\
+\{1,2,3,4\} & \{5\} \\
+\{1,2,3,5\} & \{4\} \\
+\{1,2,3,4,5\} &  \\
+\hline
+\end{tabular}
+\caption{Enumeration of the pairs. The left column shows the results of \textit{EnumerateCsg}, the right column the results of \textit{EnumerateCmp} for the given subgraph. A subgraph is denoted as a set containing the enumeration number.}
+\label{tab:dp}
+\end{table}
+
 \section*{Exercise 2}
 
 \section*{Exercise 3}
