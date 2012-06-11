@@ -65,6 +65,7 @@ We need perform a BFS on the Querygraph to enumerate the relations. We start at 
 \label{tab:dp}
 \end{table}
 
+
 \section*{Exercise 2}
 
 Step 1: compare $((R_0 \Join R_1) \Join R_3)$ to $((R_0 \Join R_3) \Join R_1)$:\\
@@ -77,7 +78,27 @@ $C((R_1 \Join R_2) \Join R_4)=25100$, $C((R_1 \Join R_4) \Join R_2)=30000$\\
 Remove $R_1 \Join R_4$\\
 \includegraphics{graph/step2}
 
+
 \section*{Exercise 3}
 
-
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+Join & SES & TES\\
+\hline
+(1) A.x = B.y & \{A, B\} & \{A, B\}\\
+(2) B.x = C.y & \{B, C\} & \{B, C\}\\
+(3) C.x = E.y & \{C, E\} & \{C, E, D, F\}\\
+(4) C.y = D.x, (5) E.x = F.y & \{C, D\}, \{E, F\} & \{C, D\}, \{E, F\}\\
+\hline
+\end{tabular}
+\caption{SES (syntactic eligibility set) and TES (total eligibility set) for the join tree}
+\label{tab:order}
+\end{table}
+As shown in the table above, join 3 depends on 4 and 5 and has to be executed after them. Joins 1 and 2 can be moved around.\\\\
+Original query graph:\\
+\includegraphics[scale=.5]{graph/qg_org}\\
+After adding TES to the edges:\\
+\includegraphics[scale=.5]{graph/qg_tes}\\
 \end{document}
