@@ -8,8 +8,6 @@ public class Dyck {
 		test(0, 4);
 		test(1, 4);
 		test(2, 4);
-//		System.out.println(binom(1,2));
-//		System.out.println(binom(2,3));
 	}
 	
 	private static void test(int i, int n) {
@@ -24,7 +22,7 @@ public class Dyck {
 		encoding[0] = '1';
 		while(pos < n*2){
 			int k = q(open+close, open-close, n);
-			if(k <= r){
+			if(k <= r){ //  && close < n
 				r -= k;
 				close++;
 				encoding[pos] = '0';
