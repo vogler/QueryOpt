@@ -1,3 +1,4 @@
+package parser.generator;
 
 public class Dyck {
 
@@ -12,10 +13,19 @@ public class Dyck {
 	}
 	
 	private static void test(int i, int n) {
-		System.out.println("i: "+i+", n: "+n+" -> "+getDyckWord(i, n));
+		System.out.println("i: "+i+", n: "+n+" -> "+unrankString(i, n));
+	}
+	
+	public static boolean[] unrank(int r, int n){
+		String s = unrankString(r, n);
+		boolean[] b = new boolean[s.length()];
+		for(int i=0; i<s.length(); i++){
+			b[i] = s.charAt(i) == '1';
+		}
+		return b;
 	}
 
-	public static String getDyckWord(int r, int n){
+	public static String unrankString(int r, int n){
 		int open = 1;
 		int close = 0;
 		int pos = 1;
@@ -84,4 +94,8 @@ public class Dyck {
 //		return b[m];
 //	}
 
+	
+	public static int catalan(int n){
+		return 0;
+	}
 }

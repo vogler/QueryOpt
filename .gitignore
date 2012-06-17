@@ -18,7 +18,7 @@
 02/tinydb/data*/
 02/tinydb/tinydb*/
 02/tinydb/samples*/
-03/tpch/
+tpch/
 
 *.log
 *.aux

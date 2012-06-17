@@ -6,12 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import parser.querygraph.Edge;
 import parser.querygraph.Node;
+import parser.generator.Dyck;
 import tinydb.Attribute;
 import tinydb.Database;
 import tinydb.Register;
@@ -29,14 +31,29 @@ public class PlanGenerator {
 	private Database db;
 	private Map<String, Table> h_tables;
 	private Map<String, Tablescan> h_scans;
-
+	private Operator select;
+	private List<Condition> cond_join = new ArrayList<Condition>();
+	private Map<String,Double> cardinalities = new HashMap<String,Double>();
+	private Map<String,Double> costs = new HashMap<String,Double>();
+	private Map<Condition, Double> selectivities = new HashMap<Condition, Double>();
+	// query plan
+	private List<String> plan = new ArrayList<String>();
+	// query graph
+	private List<Node> nodes = new ArrayList<Node>();
+	private List<Edge> edges = new ArrayList<Edge>();
+	// join connected components
+	private Map<String, Set<String>> connectedBindings = new HashMap<String, Set<String>>();
+	// will contain all scans + pushed down selections
+	private Map<String, Operator> h_selections = new HashMap<String, Operator>(h_scans);
+	// connected components
+	private Map<String, Operator> connectedComp = new HashMap<String, Operator>();
+	
+	
 	public PlanGenerator(Database db) {
 		this.db = db;
 	}
 
 	public QueryPlan parse(Query q) throws Exception {
-		Map<String,Double> cardinalities = new HashMap<String,Double>();
-		Map<String,Double> costs = new HashMap<String,Double>();
 		h_tables = new HashMap<String, Table>();
 		h_scans = new HashMap<String, Tablescan>();
 		for(PairRelation r : q.relations){
@@ -56,7 +73,6 @@ public class PlanGenerator {
 		
 		
 		// handle conditions
-		List<Condition> cond_join = new ArrayList<Condition>();
 		Map<String, List<Condition>> cond_const = new HashMap<String, List<Condition>>();
 		for(PairCondition c : q.conditions){
 			// left side of condition
@@ -93,16 +109,7 @@ public class PlanGenerator {
 		}
 		
 		
-		// query plan
-		List<String> plan = new ArrayList<String>();
-		// query graph
-		List<Node> nodes = new ArrayList<Node>();
-		List<Edge> edges = new ArrayList<Edge>();
-		
-		
 		// handle selections
-		Map<String, Operator> h_selections = new HashMap<String, Operator>(h_scans);
-		Map<String, Operator> connectedComp = new HashMap<String, Operator>();
 		// push selections with constants down to base relations
 		for(Entry<String, Tablescan> e : h_scans.entrySet()){
 			Table table = h_tables.get(e.getKey());
@@ -131,11 +138,8 @@ public class PlanGenerator {
 			nodes.add(new Node(q.getRelation(e.getKey()), pushedCond, (int) Math.ceil(cardinality)));
 		}
 		
-		// join connected components
-		Map<String, Set<String>> connectedBindings = new HashMap<String, Set<String>>();
 		
-		//calculate selectivity for all joins
-		Map<Condition, Double> selectivities = new HashMap<Condition, Double>();
+		// calculate selectivity for all joins
 		for(Condition cond : cond_join){
 			PairCondition bindings = cond.pair.getBindings();
 			// estimate selectivity for join predicate
@@ -157,6 +161,49 @@ public class PlanGenerator {
 		}
 		
 		
+		// GOO
+//		goo();
+		// TODO: DP
+		
+		// Random
+		random(1);
+		
+		
+		// handle projections
+		List<Register> a_proj = new ArrayList<Register>();
+		if(!q.star){
+			// check if attributes exist. problem: on which table? binding missing in definition?
+			// -> go through all tables for every attribute
+			attrloop:
+			for(String attr : q.attributes){
+				for(Entry<String, Table> e : h_tables.entrySet()){
+					int i = e.getValue().findAttribute(attr);
+					if(i != -1){
+						Register r = h_scans.get(e.getKey()).getOutput()[i];
+						a_proj.add(r);
+						plan.add("Projection "+e.getKey()+"."+attr);
+						continue attrloop;
+					}
+				}
+			}
+			// do projection
+			Projection project = new Projection(select, a_proj.toArray(new Register[0]));
+			select = project;
+		}
+		
+		return new QueryPlan(select, plan, nodes, edges);
+	}
+	
+	
+	// random join tree generation
+	private void random(int n) {
+		Random rand = new Random();
+		// random number for busy tree
+		int b = rand.nextInt(Dyck.catalan(n));
+	}
+
+	// greedy operator ordering
+	private void goo() {
 		while (!cond_join.isEmpty()){ 	//repeat until cond_join is empty
 			Condition cond_min = null;
 			double card_min = Double.MAX_VALUE;
@@ -164,7 +211,6 @@ public class PlanGenerator {
 			//Pair min = new Pair(null, Double.MAX_VALUE);
 			double c_a;
 			double c_b;
-			Operator o;
 			//calculate intermediate results for all possible remaining joins
 			for(Condition cond : cond_join){
 				PairCondition bindings = cond.pair.getBindings();
@@ -205,6 +251,9 @@ public class PlanGenerator {
 			}
 			connectedBindings.get(bindings.a).add(bindings.b);
 			connectedBindings.get(bindings.b).add(bindings.a);
+			// update costs for left and right
+			costs.put(bindings.a, cost_min);
+			costs.put(bindings.b, cost_min);
 			for(String s : connectedBindings.get(bindings.a)){
 				connectedComp.put(s, select);
 				cardinalities.put(s, card_min);
@@ -235,7 +284,7 @@ public class PlanGenerator {
 
 		
 		// use cross product to join connected components
-		Operator select = null;
+		select = null;
 		for(Operator op : new HashSet<Operator>(connectedComp.values())){ // gets distinct connected components from map
 			if(select == null){
 				select = op;
@@ -244,33 +293,8 @@ public class PlanGenerator {
 				plan.add("CrossProduct "+select+" & "+op);
 			}
 		}
-		
-		
-		// handle projections
-		List<Register> a_proj = new ArrayList<Register>();
-		if(!q.star){
-			// check if attributes exist. problem: on which table? binding missing in definition?
-			// -> go through all tables for every attribute
-			attrloop:
-			for(String attr : q.attributes){
-				for(Entry<String, Table> e : h_tables.entrySet()){
-					int i = e.getValue().findAttribute(attr);
-					if(i != -1){
-						Register r = h_scans.get(e.getKey()).getOutput()[i];
-						a_proj.add(r);
-						plan.add("Projection "+e.getKey()+"."+attr);
-						continue attrloop;
-					}
-				}
-			}
-			// do projection
-			Projection project = new Projection(select, a_proj.toArray(new Register[0]));
-			select = project;
-		}
-		
-		return new QueryPlan(select, plan, nodes, edges);
 	}
-	
+
 	
 	private Register getRegister(String s, PairCondition c) throws Exception{
 		String[] a = s.split("\\.");
