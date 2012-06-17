@@ -8,6 +8,7 @@ public class Dyck {
 		test(0, 4);
 		test(1, 4);
 		test(2, 4);
+		test(56, 8);
 	}
 	
 	private static void test(int i, int n) {
@@ -21,7 +22,7 @@ public class Dyck {
 		char[] encoding = new char[n*2];
 		encoding[0] = '1';
 		while(pos < n*2){
-			int k = q(open+close, open-close, n);
+			int k = q(open+close, open-close, n-1);
 			if(k <= r){ //  && close < n
 				r -= k;
 				close++;
@@ -36,30 +37,51 @@ public class Dyck {
 	}
 
 	private static int q(int i, int j, int n) {
-		System.err.println(i+" "+j);
-		if(j==0 && (i==0 || i==2*n)){
-			System.err.println("not implemented yet");
-			return 0; // TODO C(n)
+		if(i==0 && j==0){
+			System.err.println("not implemented, but also not necessary");
+//			return 0; // TODO C(n)
 		}
-		return p(2*n-i, j);
+		int r = p(2*n-i, j);
+//		System.err.println("n="+n+", i="+i+", j="+j+" -> q="+r);
+		return r;
 	}
 
-	private static int p(int i, int j) {
-		return (j+1)/(i+1)*binom(i+1, (int) (0.5*(i+j)+1));
+	public static int p(double i, double j){
+		return (int) ((j+1)*Dyck_jo.binCoeff(i+1, 0.5*(i+j)+1)/(i+1));
 	}
 	
-	// Binomial coefficient using DP 
-	private static int binom(int n, int m){
-//		System.out.println(n+" out of "+m);
-		int[] b = new int[n+1];
-		b[0] = 1;
-		for(int i=1; i<=n; ++i){
-			b[i] = 1;
-			for(int j=i-1; j>0; --j){
-				b[j] += b[j-1];
-			}
-		}
-		return b[m];
+	//binomial coefficient
+	public static double binCoeff(double n, double k){
+		return Dyck_jo.fac(n)/(Dyck_jo.fac(k)*Dyck_jo.fac(n-k));
 	}
+	
+	//factorial
+	public static double fac(double n)
+    {
+		if (n==0) return 1;
+		double ret = n;
+		for (double i = n-1;i>0;--i){
+			ret = ret*i;
+		}
+		return ret;
+    }
+	
+//	private static int p(double i, double j) {
+//		return (int) ((j+1)/(i+1)*binom((int) (i+1), (int) (0.5*(i+j)+1)));
+//	}
+//	
+//	// Binomial coefficient using DP 
+//	private static int binom(int n, int m){
+//		int[] b = new int[n+1];
+//		b[0] = 1;
+//		for(int i=1; i<=n; ++i){
+//			b[i] = 1;
+//			for(int j=i-1; j>0; --j){
+//				b[j] += b[j-1];
+//			}
+//		}
+////		System.out.println(m+" out of "+n+" = "+b[m]);
+//		return b[m];
+//	}
 
 }
