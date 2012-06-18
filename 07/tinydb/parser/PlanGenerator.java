@@ -184,22 +184,25 @@ public class PlanGenerator {
 		// TODO: DP
 		
 		// Random
+		List<String> prevplan = new ArrayList<String>(plan);
 		int mincost = randomTree(); // init with first random tree
 		Operator minselect = select;
-		List<String> minplan = plan;
-		List<Node> minnodes = nodes;
+		List<String> minplan = new ArrayList<String>(plan);
 		List<Edge> minedges = edges;
 		for(int i=1; i<100; i++){ // try 100 random trees in total an take the best one
+			select = null;
+			plan = new ArrayList<String>();
+//			edges = new ArrayList<Edge>();
 			int cost = randomTree();
 			if(cost < mincost){
+				mincost = cost;
 				minselect = select;
 				minplan = plan;
-				minnodes = nodes;
 				minedges = edges;
 			}
 		}
 		// restore best one
-		select = minselect; plan = minplan; nodes = minnodes; edges = minedges;
+		select = minselect; prevplan.addAll(minplan); plan = prevplan; edges = minedges;
 		
 		
 		// handle projections
@@ -261,6 +264,18 @@ public class PlanGenerator {
 			}
 			return list;
 		}
+		
+		public String toString(){
+			String r = " ";
+			if(left != null && right != null){
+				r += "|><|";
+				r += left.toString();
+				r += right.toString();
+			}else{
+				r += value;
+			}
+			return r;
+		}
 	}
 	
 	// random join tree generation
@@ -268,7 +283,7 @@ public class PlanGenerator {
 		int n = query.relations.size();
 		Random rand = new Random();
 		// 1. generate a random number b in [0, C(n)[
-		int b = rand.nextInt(Dyck.catalan(n));
+		int b = rand.nextInt(Dyck.catalan(n-1));
 		// 2. unrank b to obtain a bushy tree with n-1 inner nodes
 		boolean[] tree = Dyck.unrank(b, n-1);
 		// 3. generate a random number p in [0, n![
@@ -281,6 +296,7 @@ public class PlanGenerator {
 			encoding.add(bool);
 		}
 		Tree<String> root = createTree(encoding, leaves);
+		System.out.println(root.toString());
 		select = joinOrCross(root);
 		System.out.println("Generated random tree with costs "+root.costs);
 		return root.costs;
@@ -288,6 +304,7 @@ public class PlanGenerator {
 
 	private Operator joinOrCross(Tree<String> node) {
 		if(node.value != null){ // leaf
+			plan.add("Get selection/tablescan for binding "+node.value);
 			return h_selections.get(node.value);
 		}
 		Operator left = joinOrCross(node.left);
@@ -297,7 +314,7 @@ public class PlanGenerator {
 			if(usedConditions.contains(cond)) continue;
 			PairCondition bindings = cond.pair.getBindings();
 			if(node.left.values().contains(bindings.a) && node.right.values().contains(bindings.b)
-			|| node.left.values().contains(bindings.b) && node.right.values().contains(bindings.a)){
+			|| node.left.values().contains(bindings.b) && node.right.values().contains(bindings.a)){ // connected component?
 				Double c_a = cardinalities.get(bindings.a);
 				Double c_b = cardinalities.get(bindings.b);
 				double tmp = selectivities.get(cond)*c_a*c_b;
@@ -314,15 +331,15 @@ public class PlanGenerator {
 	}
 
 	private <T> Tree<T> createTree(List<Boolean> encoding, List<T> leaves) {
-		Boolean current = encoding.remove(0);
+		Boolean current = encoding.size() > 0 ? encoding.remove(0) : false;
 		if(current){
 			Tree<T> left = createTree(encoding, leaves);
-			for(int i=0; i<left.size(); i++){ // shift input encoding by #elements in left subtree
-				encoding.remove(0);
-			}
-			for(int i=0; i<left.nleaves(); i++){ // shift leaves of left subtree
-				leaves.remove(0);
-			}
+//			for(int i=0; i<left.size(); i++){ // shift input encoding by #elements in left subtree
+//				encoding.remove(0);
+//			}
+//			for(int i=0; i<left.nleaves(); i++){ // shift leaves of left subtree
+//				leaves.remove(0);
+//			}
 			Tree<T> right = createTree(encoding, leaves);
 			return new Tree<T>(left, right, null);
 		}else{

@@ -22,6 +22,8 @@ public class Parser {
 		while(true){
 			String line = br.readLine();
 			if(line.equals("quit")) break;
+			if(line.equals("r"))
+				line = "select * from lineitem l, orders o, customer c where l.l_orderkey=o.o_orderkey and o.o_custkey=c.c_custkey and c.c_name='Customer#000014993'";
 			
 			try{
 				Query query = Query.parse(line);
