@@ -14,6 +14,7 @@ public class Parser {
 	public static void main(String[] args) throws java.io.IOException {
 		//Database db = Database.open("../data/uni");
 		Database db = Database.open("../../tpch/tpch");
+		// select * from lineitem l, orders o, customer c where l.l_orderkey=o.o_orderkey and o.o_custkey=c.c_custkey and c.c_name='Customer#000014993'
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		
 		System.out.println("Enter your query below. Type 'quit' to exit.");

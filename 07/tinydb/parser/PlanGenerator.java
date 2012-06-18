@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import parser.generator.Dyck;
 import parser.querygraph.Edge;
 import parser.querygraph.Node;
-import parser.generator.Dyck;
 import tinydb.Attribute;
 import tinydb.Database;
 import tinydb.Register;
@@ -29,6 +29,7 @@ import tinydb.operator.Tablescan;
 public class PlanGenerator {
 
 	private Database db;
+	private Query query;
 	private Map<String, Table> h_tables;
 	private Map<String, Tablescan> h_scans;
 	private Operator select;
@@ -44,9 +45,10 @@ public class PlanGenerator {
 	// join connected components
 	private Map<String, Set<String>> connectedBindings = new HashMap<String, Set<String>>();
 	// will contain all scans + pushed down selections
-	private Map<String, Operator> h_selections = new HashMap<String, Operator>(h_scans);
+	private Map<String, Operator> h_selections = new HashMap<String, Operator>();
 	// connected components
 	private Map<String, Operator> connectedComp = new HashMap<String, Operator>();
+	private List<Condition> usedConditions = new ArrayList<Condition>(); // TODO: just for random
 	
 	
 	public PlanGenerator(Database db) {
@@ -54,6 +56,7 @@ public class PlanGenerator {
 	}
 
 	public QueryPlan parse(Query q) throws Exception {
+		this.query = q;
 		h_tables = new HashMap<String, Table>();
 		h_scans = new HashMap<String, Tablescan>();
 		for(PairRelation r : q.relations){
@@ -111,6 +114,7 @@ public class PlanGenerator {
 		
 		// handle selections
 		// push selections with constants down to base relations
+		h_selections = new HashMap<String, Operator>(h_scans);
 		for(Entry<String, Tablescan> e : h_scans.entrySet()){
 			Table table = h_tables.get(e.getKey());
 			Operator op = e.getValue();
@@ -160,13 +164,42 @@ public class PlanGenerator {
 			selectivities.put(cond, selectivity);
 		}
 		
+		// compute connected bindings
+		for(Condition cond : cond_join){
+			PairCondition bindings = cond.pair.getBindings();
+			// update list of connected bindings and components
+			if(!connectedBindings.containsKey(bindings.a)){
+				connectedBindings.put(bindings.a, new HashSet<String>());
+			}
+			if(!connectedBindings.containsKey(bindings.b)){
+				connectedBindings.put(bindings.b, new HashSet<String>());
+			}
+			connectedBindings.get(bindings.a).add(bindings.b);
+			connectedBindings.get(bindings.b).add(bindings.a);
+		}
+		
 		
 		// GOO
 //		goo();
 		// TODO: DP
 		
 		// Random
-		random(1);
+		int mincost = randomTree(); // init with first random tree
+		Operator minselect = select;
+		List<String> minplan = plan;
+		List<Node> minnodes = nodes;
+		List<Edge> minedges = edges;
+		for(int i=1; i<100; i++){ // try 100 random trees in total an take the best one
+			int cost = randomTree();
+			if(cost < mincost){
+				minselect = select;
+				minplan = plan;
+				minnodes = nodes;
+				minedges = edges;
+			}
+		}
+		// restore best one
+		select = minselect; plan = minplan; nodes = minnodes; edges = minedges;
 		
 		
 		// handle projections
@@ -194,12 +227,108 @@ public class PlanGenerator {
 		return new QueryPlan(select, plan, nodes, edges);
 	}
 	
+	class Tree<T> {
+		T value;
+		Tree<T> left;
+		Tree<T> right;
+		int costs;
+		
+		Tree(Tree<T> left, Tree<T> right, T value){
+			this.left = left;
+			this.right = right;
+			this.value = value;
+		}
+		
+		int size(){
+			if(left == null && right == null) // leaf
+				return 1;
+			return 1+left.size()+right.size();
+		}
+		
+		int nleaves(){
+			if(left == null && right == null) // leaf
+				return 1;
+			return left.nleaves()+right.nleaves();	
+		}
+		
+		List<T> values(){
+			List<T> list = new ArrayList<T>();
+			if(left == null && right == null) // leaf
+				list.add(value);
+			else{
+				list.addAll(left.values());
+				list.addAll(right.values());
+			}
+			return list;
+		}
+	}
 	
 	// random join tree generation
-	private void random(int n) {
+	private int randomTree() {
+		int n = query.relations.size();
 		Random rand = new Random();
-		// random number for busy tree
+		// 1. generate a random number b in [0, C(n)[
 		int b = rand.nextInt(Dyck.catalan(n));
+		// 2. unrank b to obtain a bushy tree with n-1 inner nodes
+		boolean[] tree = Dyck.unrank(b, n-1);
+		// 3. generate a random number p in [0, n![
+		int p = rand.nextInt((int) Dyck.fac(n));
+		// 4. unrank p to obtain a permutation
+		List<String> leaves = Dyck.unrankPermutation(h_scans.keySet(), p);
+		// 5. attach the relations in order p from left to right as leaf nodes to the binary tree obtained in step 2
+		List<Boolean> encoding = new ArrayList<Boolean>();
+		for(boolean bool : tree){
+			encoding.add(bool);
+		}
+		Tree<String> root = createTree(encoding, leaves);
+		select = joinOrCross(root);
+		System.out.println("Generated random tree with costs "+root.costs);
+		return root.costs;
+	}
+
+	private Operator joinOrCross(Tree<String> node) {
+		if(node.value != null){ // leaf
+			return h_selections.get(node.value);
+		}
+		Operator left = joinOrCross(node.left);
+		Operator right = joinOrCross(node.right);
+		// is there a join predicate that contains any relations from the two subtrees?
+		for(Condition cond : cond_join){
+			if(usedConditions.contains(cond)) continue;
+			PairCondition bindings = cond.pair.getBindings();
+			if(node.left.values().contains(bindings.a) && node.right.values().contains(bindings.b)
+			|| node.left.values().contains(bindings.b) && node.right.values().contains(bindings.a)){
+				Double c_a = cardinalities.get(bindings.a);
+				Double c_b = cardinalities.get(bindings.b);
+				double tmp = selectivities.get(cond)*c_a*c_b;
+				node.costs = (int) (tmp + node.left.costs + node.right.costs);
+				edges.add(new Edge(cond.pair, selectivities.get(cond)));
+				usedConditions.add(cond);
+				plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+node.costs);
+				return new HashJoin(left, right, cond.a, cond.b);
+			}
+		}
+		// otherwise do a cross product
+		plan.add("CrossProduct "+left+" & "+right);
+		return new CrossProduct(left, right);
+	}
+
+	private <T> Tree<T> createTree(List<Boolean> encoding, List<T> leaves) {
+		Boolean current = encoding.remove(0);
+		if(current){
+			Tree<T> left = createTree(encoding, leaves);
+			for(int i=0; i<left.size(); i++){ // shift input encoding by #elements in left subtree
+				encoding.remove(0);
+			}
+			for(int i=0; i<left.nleaves(); i++){ // shift leaves of left subtree
+				leaves.remove(0);
+			}
+			Tree<T> right = createTree(encoding, leaves);
+			return new Tree<T>(left, right, null);
+		}else{
+			T leaf = leaves.remove(0);
+			return new Tree<T>(null, null, leaf);
+		}
 	}
 
 	// greedy operator ordering
@@ -265,21 +394,7 @@ public class PlanGenerator {
 				costs.put(s, cost_min);
 			}
 			plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+cost_min);
-			// estimate selectivity for join predicate
-			double selectivity = 1;
-			Table table_a = h_tables.get(bindings.a);
-			Table table_b = h_tables.get(bindings.b);
-			Attribute attr_a = getAttribute(table_a, cond.pair.getAttributes().a);
-			Attribute attr_b = getAttribute(table_b, cond.pair.getAttributes().b);
-			if(attr_a == null || attr_b == null) continue;
-			if(attr_a.getKey() && attr_b.getKey()){ // both keys
-				selectivity = 1./Math.max(table_a.getCardinality(), table_b.getCardinality());
-			}else if(!attr_a.getKey() && !attr_b.getKey()){ // both not keys
-				selectivity = 1./Math.max(attr_a.getUniqueValues(), attr_b.getUniqueValues());
-			}else{ // exactly one key
-				selectivity = 1./(attr_a.getKey() ? table_a.getCardinality() : table_b.getCardinality());
-			}
-			edges.add(new Edge(cond.pair, selectivity));
+			edges.add(new Edge(cond.pair, selectivities.get(cond)));
 		}
 
 		

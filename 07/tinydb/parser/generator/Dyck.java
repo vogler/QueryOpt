@@ -1,5 +1,10 @@
 package parser.generator;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 public class Dyck {
 
 	/**
@@ -96,6 +101,15 @@ public class Dyck {
 
 	
 	public static int catalan(int n){
-		return 0;
+		return (int) (binCoeff(2*n, n)-binCoeff(2*n, n+1));
+	}
+
+	public static <T> List<T> unrankPermutation(Collection<T> elements, int r) {
+		List<T> pi = new ArrayList<T>(elements);
+		for(int i=elements.size(); i>0; i--){
+			Collections.swap(pi, i-1, r%i);
+			r = r/i;
+		}
+		return pi;
 	}
 }
