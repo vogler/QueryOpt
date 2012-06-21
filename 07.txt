@@ -1,0 +1,255 @@
+Enter your query below. Type 'quit' to exit.
+select * from lineitem l, orders o, customer c where l.l_orderkey=o.o_orderkey and o.o_custkey=c.c_custkey and c.c_name='Customer#000014993'
+ |><| l |><| o c
+Generated random tree 0 (b=1, p=3) with costs 1351199
+ |><| o |><| l c
+Generated random tree 1 (b=1, p=0) with costs 2552290
+ |><| o |><| l c
+Generated random tree 2 (b=1, p=0) with costs 2552290
+ |><| l |><| c o
+Generated random tree 3 (b=1, p=1) with costs 1351199
+ |><| |><| c o l
+Generated random tree 4 (b=0, p=5) with costs 1351199
+ |><| l |><| c o
+Generated random tree 5 (b=1, p=1) with costs 1351199
+ |><| |><| o l c
+Generated random tree 6 (b=0, p=0) with costs 1351235
+ |><| o |><| l c
+Generated random tree 7 (b=1, p=0) with costs 2552290
+ |><| |><| c o l
+Generated random tree 8 (b=0, p=5) with costs 1351199
+ |><| o |><| c l
+Generated random tree 9 (b=1, p=2) with costs 2552290
+ |><| |><| o l c
+Generated random tree 10 (b=0, p=0) with costs 1351235
+ |><| c |><| l o
+Generated random tree 11 (b=1, p=4) with costs 1351235
+ |><| |><| c o l
+Generated random tree 12 (b=0, p=5) with costs 1351199
+ |><| |><| l o c
+Generated random tree 13 (b=0, p=3) with costs 1351235
+ |><| |><| o c l
+Generated random tree 14 (b=0, p=2) with costs 1351199
+ |><| |><| o c l
+Generated random tree 15 (b=0, p=2) with costs 1351199
+ |><| |><| c l o
+Generated random tree 16 (b=0, p=4) with costs 2552290
+ |><| o |><| c l
+Generated random tree 17 (b=1, p=2) with costs 2552290
+ |><| |><| l c o
+Generated random tree 18 (b=0, p=1) with costs 2552290
+ |><| |><| c o l
+Generated random tree 19 (b=0, p=5) with costs 1351199
+ |><| l |><| o c
+Generated random tree 20 (b=1, p=3) with costs 1351199
+ |><| |><| c o l
+Generated random tree 21 (b=0, p=5) with costs 1351199
+ |><| o |><| c l
+Generated random tree 22 (b=1, p=2) with costs 2552290
+ |><| o |><| c l
+Generated random tree 23 (b=1, p=2) with costs 2552290
+ |><| l |><| o c
+Generated random tree 24 (b=1, p=3) with costs 1351199
+ |><| |><| o l c
+Generated random tree 25 (b=0, p=0) with costs 1351235
+ |><| |><| l o c
+Generated random tree 26 (b=0, p=3) with costs 1351235
+ |><| c |><| l o
+Generated random tree 27 (b=1, p=4) with costs 1351235
+ |><| |><| o l c
+Generated random tree 28 (b=0, p=0) with costs 1351235
+ |><| |><| l c o
+Generated random tree 29 (b=0, p=1) with costs 2552290
+ |><| c |><| l o
+Generated random tree 30 (b=1, p=4) with costs 1351235
+ |><| |><| o l c
+Generated random tree 31 (b=0, p=0) with costs 1351235
+ |><| |><| c l o
+Generated random tree 32 (b=0, p=4) with costs 2552290
+ |><| |><| o c l
+Generated random tree 33 (b=0, p=2) with costs 1351199
+ |><| |><| l c o
+Generated random tree 34 (b=0, p=1) with costs 2552290
+ |><| o |><| c l
+Generated random tree 35 (b=1, p=2) with costs 2552290
+ |><| |><| l c o
+Generated random tree 36 (b=0, p=1) with costs 2552290
+ |><| |><| c o l
+Generated random tree 37 (b=0, p=5) with costs 1351199
+ |><| o |><| l c
+Generated random tree 38 (b=1, p=0) with costs 2552290
+ |><| |><| l c o
+Generated random tree 39 (b=0, p=1) with costs 2552290
+ |><| l |><| o c
+Generated random tree 40 (b=1, p=3) with costs 1351199
+ |><| c |><| o l
+Generated random tree 41 (b=1, p=5) with costs 1351235
+ |><| l |><| c o
+Generated random tree 42 (b=1, p=1) with costs 1351199
+ |><| o |><| l c
+Generated random tree 43 (b=1, p=0) with costs 2552290
+ |><| |><| o c l
+Generated random tree 44 (b=0, p=2) with costs 1351199
+ |><| |><| l o c
+Generated random tree 45 (b=0, p=3) with costs 1351235
+ |><| |><| c o l
+Generated random tree 46 (b=0, p=5) with costs 1351199
+ |><| l |><| o c
+Generated random tree 47 (b=1, p=3) with costs 1351199
+ |><| l |><| c o
+Generated random tree 48 (b=1, p=1) with costs 1351199
+ |><| |><| o l c
+Generated random tree 49 (b=0, p=0) with costs 1351235
+ |><| |><| l o c
+Generated random tree 50 (b=0, p=3) with costs 1351235
+ |><| c |><| o l
+Generated random tree 51 (b=1, p=5) with costs 1351235
+ |><| l |><| o c
+Generated random tree 52 (b=1, p=3) with costs 1351199
+ |><| |><| c l o
+Generated random tree 53 (b=0, p=4) with costs 2552290
+ |><| o |><| l c
+Generated random tree 54 (b=1, p=0) with costs 2552290
+ |><| c |><| l o
+Generated random tree 55 (b=1, p=4) with costs 1351235
+ |><| |><| c l o
+Generated random tree 56 (b=0, p=4) with costs 2552290
+ |><| |><| l c o
+Generated random tree 57 (b=0, p=1) with costs 2552290
+ |><| c |><| l o
+Generated random tree 58 (b=1, p=4) with costs 1351235
+ |><| l |><| c o
+Generated random tree 59 (b=1, p=1) with costs 1351199
+ |><| o |><| l c
+Generated random tree 60 (b=1, p=0) with costs 2552290
+ |><| c |><| o l
+Generated random tree 61 (b=1, p=5) with costs 1351235
+ |><| c |><| o l
+Generated random tree 62 (b=1, p=5) with costs 1351235
+ |><| o |><| l c
+Generated random tree 63 (b=1, p=0) with costs 2552290
+ |><| |><| l c o
+Generated random tree 64 (b=0, p=1) with costs 2552290
+ |><| |><| o c l
+Generated random tree 65 (b=0, p=2) with costs 1351199
+ |><| |><| l c o
+Generated random tree 66 (b=0, p=1) with costs 2552290
+ |><| o |><| l c
+Generated random tree 67 (b=1, p=0) with costs 2552290
+ |><| |><| c o l
+Generated random tree 68 (b=0, p=5) with costs 1351199
+ |><| |><| l c o
+Generated random tree 69 (b=0, p=1) with costs 2552290
+ |><| l |><| c o
+Generated random tree 70 (b=1, p=1) with costs 1351199
+ |><| |><| c o l
+Generated random tree 71 (b=0, p=5) with costs 1351199
+ |><| |><| c o l
+Generated random tree 72 (b=0, p=5) with costs 1351199
+ |><| |><| o c l
+Generated random tree 73 (b=0, p=2) with costs 1351199
+ |><| l |><| c o
+Generated random tree 74 (b=1, p=1) with costs 1351199
+ |><| |><| o l c
+Generated random tree 75 (b=0, p=0) with costs 1351235
+ |><| |><| c l o
+Generated random tree 76 (b=0, p=4) with costs 2552290
+ |><| l |><| c o
+Generated random tree 77 (b=1, p=1) with costs 1351199
+ |><| |><| o l c
+Generated random tree 78 (b=0, p=0) with costs 1351235
+ |><| o |><| c l
+Generated random tree 79 (b=1, p=2) with costs 2552290
+ |><| |><| l o c
+Generated random tree 80 (b=0, p=3) with costs 1351235
+ |><| |><| l c o
+Generated random tree 81 (b=0, p=1) with costs 2552290
+ |><| |><| o c l
+Generated random tree 82 (b=0, p=2) with costs 1351199
+ |><| |><| l o c
+Generated random tree 83 (b=0, p=3) with costs 1351235
+ |><| |><| c l o
+Generated random tree 84 (b=0, p=4) with costs 2552290
+ |><| |><| l o c
+Generated random tree 85 (b=0, p=3) with costs 1351235
+ |><| c |><| o l
+Generated random tree 86 (b=1, p=5) with costs 1351235
+ |><| c |><| o l
+Generated random tree 87 (b=1, p=5) with costs 1351235
+ |><| |><| l c o
+Generated random tree 88 (b=0, p=1) with costs 2552290
+ |><| |><| o l c
+Generated random tree 89 (b=0, p=0) with costs 1351235
+ |><| l |><| c o
+Generated random tree 90 (b=1, p=1) with costs 1351199
+ |><| c |><| o l
+Generated random tree 91 (b=1, p=5) with costs 1351235
+ |><| |><| l o c
+Generated random tree 92 (b=0, p=3) with costs 1351235
+ |><| l |><| o c
+Generated random tree 93 (b=1, p=3) with costs 1351199
+ |><| |><| o c l
+Generated random tree 94 (b=0, p=2) with costs 1351199
+ |><| |><| c l o
+Generated random tree 95 (b=0, p=4) with costs 2552290
+ |><| |><| o l c
+Generated random tree 96 (b=0, p=0) with costs 1351235
+ |><| c |><| l o
+Generated random tree 97 (b=1, p=4) with costs 1351235
+ |><| |><| l c o
+Generated random tree 98 (b=0, p=1) with costs 2552290
+ |><| |><| c o l
+Generated random tree 99 (b=0, p=5) with costs 1351199
+-- Execution plan:
+Selection c with c.c_name='Customer#000014993'
+Get selection/tablescan for binding l
+Get selection/tablescan for binding o
+Get selection/tablescan for binding c
+HashJoin o & c with o.o_custkey=c.c_custkey and cost of 150011
+HashJoin l & o with l.l_orderkey=o.o_orderkey and cost of 1351199
+
+-- Query graph:
+- Nodes:
+Relation: customer c, Pushed down predicates: [c.c_name='Customer#000014993'], Estimated cardinality: 1
+Relation: orders o, Pushed down predicates: [], Estimated cardinality: 150000
+Relation: lineitem l, Pushed down predicates: [], Estimated cardinality: 600572
+- Edges:
+o.o_custkey=c.c_custkey with estimated selectivity of 6.666666666666667E-5
+l.l_orderkey=o.o_orderkey with estimated selectivity of 6.666666666666667E-6
+
+-- Result:
+21410 5684 195 1 4 6358.72 0.07 0.05 A F 1992-07-22 1992-07-19 1992-07-24 COLLECT COD SHIP fluffily. regular deposits wake blithely. 21410 14993 F 56047.95 1992-05-02 1-URGENT Clerk#000000944 0 cross the quickly regular braids! furiously  14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+21410 7825 83 2 28 48518.96 0.04 0.07 R F 1992-05-12 1992-07-29 1992-05-30 TAKE BACK RETURN TRUCK deposits nag fin 21410 14993 F 56047.95 1992-05-02 1-URGENT Clerk#000000944 0 cross the quickly regular braids! furiously  14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+83105 11227 11 1 15 17073.3 0.0 0.0 N O 1998-01-26 1998-03-31 1998-01-31 NONE MAIL ests according to the deposits are blith 83105 14993 O 48734.79 1998-01-24 2-HIGH Clerk#000000370 0 en packages are special escapades. furiously final 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+83105 8180 955 2 10 10881.8 0.06 0.04 N O 1998-05-03 1998-02-23 1998-06-01 COLLECT COD REG AIR  accounts. carefully ironic court 83105 14993 O 48734.79 1998-01-24 2-HIGH Clerk#000000370 0 en packages are special escapades. furiously final 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+83105 966 717 3 12 22403.52 0.08 0.02 N O 1998-02-16 1998-02-26 1998-02-23 NONE RAIL detect furiously alon 83105 14993 O 48734.79 1998-01-24 2-HIGH Clerk#000000370 0 en packages are special escapades. furiously final 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+114240 12381 168 1 23 29747.74 0.03 0.03 A F 1994-09-01 1994-06-09 1994-09-19 TAKE BACK RETURN MAIL ve quickly agains 114240 14993 F 256358.57 1994-05-10 4-NOT SPECIFIED Clerk#000000396 0 into beans affix furiously against the foxes. carefully even requ 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+114240 17143 945 2 39 41345.46 0.07 0.0 R F 1994-06-30 1994-07-25 1994-07-28 COLLECT COD RAIL xes. slyly pending foxes  114240 14993 F 256358.57 1994-05-10 4-NOT SPECIFIED Clerk#000000396 0 into beans affix furiously against the foxes. carefully even requ 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+114240 1966 469 3 31 57906.76 0.0 0.04 A F 1994-09-04 1994-06-20 1994-09-27 TAKE BACK RETURN AIR  even packages are slyly regular  114240 14993 F 256358.57 1994-05-10 4-NOT SPECIFIED Clerk#000000396 0 into beans affix furiously against the foxes. carefully even requ 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+114240 9515 516 4 48 68376.48 0.01 0.08 R F 1994-05-30 1994-08-05 1994-06-11 TAKE BACK RETURN RAIL pending Tiresias hag 114240 14993 F 256358.57 1994-05-10 4-NOT SPECIFIED Clerk#000000396 0 into beans affix furiously against the foxes. carefully even requ 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+114240 8941 716 5 9 16649.46 0.02 0.04 R F 1994-05-16 1994-06-19 1994-06-12 DELIVER IN PERSON MAIL furiously  114240 14993 F 256358.57 1994-05-10 4-NOT SPECIFIED Clerk#000000396 0 into beans affix furiously against the foxes. carefully even requ 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+114240 11216 478 6 33 37197.93 0.03 0.05 A F 1994-06-19 1994-07-13 1994-07-10 NONE RAIL  against the blithely ironic accounts sleep 114240 14993 F 256358.57 1994-05-10 4-NOT SPECIFIED Clerk#000000396 0 into beans affix furiously against the foxes. carefully even requ 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+194628 9005 524 1 31 28334.0 0.05 0.06 N O 1996-09-25 1996-10-13 1996-10-17 NONE FOB  the packages. final reques 194628 14993 O 253112.12 1996-07-26 3-MEDIUM Clerk#000000977 0 quests run accounts: slyly bold instructions cajol 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+194628 10774 775 2 28 47173.56 0.02 0.06 N O 1996-11-04 1996-09-29 1996-11-05 TAKE BACK RETURN SHIP s. furiously even  194628 14993 O 253112.12 1996-07-26 3-MEDIUM Clerk#000000977 0 quests run accounts: slyly bold instructions cajol 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+194628 10498 499 3 16 22535.84 0.09 0.02 N O 1996-11-21 1996-10-20 1996-12-11 COLLECT COD MAIL ly. bold requests shall have to are 194628 14993 O 253112.12 1996-07-26 3-MEDIUM Clerk#000000977 0 quests run accounts: slyly bold instructions cajol 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+194628 4806 61 4 14 23951.2 0.1 0.02 N O 1996-08-03 1996-09-03 1996-08-08 NONE TRUCK te carefully. furiously special cou 194628 14993 O 253112.12 1996-07-26 3-MEDIUM Clerk#000000977 0 quests run accounts: slyly bold instructions cajol 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+194628 5653 419 5 32 49876.8 0.01 0.07 N O 1996-08-15 1996-10-09 1996-09-11 DELIVER IN PERSON FOB egular foxes. evenly regular pack 194628 14993 O 253112.12 1996-07-26 3-MEDIUM Clerk#000000977 0 quests run accounts: slyly bold instructions cajol 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+194628 882 883 6 45 80229.6 0.07 0.07 N O 1996-11-05 1996-09-15 1996-11-30 DELIVER IN PERSON REG AIR nt pinto beans eat blithely. platelet 194628 14993 O 253112.12 1996-07-26 3-MEDIUM Clerk#000000977 0 quests run accounts: slyly bold instructions cajol 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+327712 8094 869 1 42 42087.78 0.02 0.0 N O 1998-02-06 1998-02-16 1998-02-07 COLLECT COD RAIL ccounts of the permanently regul 327712 14993 O 42260.2 1997-12-20 2-HIGH Clerk#000000679 0 totes about the special instructions use carefully ironic deposits. 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+327712 4111 112 2 1 1015.11 0.03 0.03 N O 1998-01-01 1998-02-15 1998-01-08 NONE FOB ing realms grow. blith 327712 14993 O 42260.2 1997-12-20 2-HIGH Clerk#000000679 0 totes about the special instructions use carefully ironic deposits. 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+420545 13396 186 1 38 49756.82 0.04 0.02 A F 1995-04-14 1995-04-08 1995-04-25 TAKE BACK RETURN RAIL  ironic req 420545 14993 P 170491.56 1995-03-05 1-URGENT Clerk#000000236 0 thely ironic theodolites. fluffily ironic pin 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+420545 16001 534 2 1 917.0 0.07 0.01 N O 1995-06-29 1995-04-04 1995-07-25 NONE FOB platelets! theodolites subl 420545 14993 P 170491.56 1995-03-05 1-URGENT Clerk#000000236 0 thely ironic theodolites. fluffily ironic pin 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+420545 14990 991 3 5 9524.95 0.1 0.0 A F 1995-04-03 1995-05-15 1995-04-06 TAKE BACK RETURN TRUCK mptotes around the fluffily regular 420545 14993 P 170491.56 1995-03-05 1-URGENT Clerk#000000236 0 thely ironic theodolites. fluffily ironic pin 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+420545 9857 858 4 10 17668.5 0.04 0.08 N F 1995-06-15 1995-05-07 1995-06-25 COLLECT COD FOB ts boost. blithely bold depos 420545 14993 P 170491.56 1995-03-05 1-URGENT Clerk#000000236 0 thely ironic theodolites. fluffily ironic pin 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+420545 166 167 5 2 2132.32 0.03 0.04 A F 1995-03-26 1995-05-02 1995-04-21 COLLECT COD SHIP y around t 420545 14993 P 170491.56 1995-03-05 1-URGENT Clerk#000000236 0 thely ironic theodolites. fluffily ironic pin 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+420545 6847 616 6 50 87692.0 0.03 0.08 R F 1995-03-23 1995-04-11 1995-04-08 NONE MAIL hely permanent theodolites. carefully unus 420545 14993 P 170491.56 1995-03-05 1-URGENT Clerk#000000236 0 thely ironic theodolites. fluffily ironic pin 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+448960 9023 283 1 13 12116.26 0.03 0.01 R F 1992-04-15 1992-04-20 1992-05-03 NONE RAIL to beans x-ray fluffil 448960 14993 F 167945.11 1992-03-12 2-HIGH Clerk#000000482 0 uickly final, final courts.  14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+448960 4233 996 2 12 13646.76 0.0 0.03 R F 1992-05-06 1992-05-08 1992-05-28 NONE MAIL egular dolphins print across the blithel 448960 14993 F 167945.11 1992-03-12 2-HIGH Clerk#000000482 0 uickly final, final courts.  14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+448960 9373 374 3 25 32059.25 0.06 0.08 A F 1992-05-21 1992-05-01 1992-05-31 TAKE BACK RETURN TRUCK riously express pinto  448960 14993 F 167945.11 1992-03-12 2-HIGH Clerk#000000482 0 uickly final, final courts.  14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+448960 6928 929 4 49 89911.08 0.02 0.0 R F 1992-05-15 1992-04-16 1992-06-04 COLLECT COD REG AIR en, regular realms kind 448960 14993 F 167945.11 1992-03-12 2-HIGH Clerk#000000482 0 uickly final, final courts.  14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+448960 17277 79 5 18 21496.86 0.08 0.08 A F 1992-04-11 1992-05-13 1992-05-08 COLLECT COD REG AIR packages wake. pending, final somas hagg 448960 14993 F 167945.11 1992-03-12 2-HIGH Clerk#000000482 0 uickly final, final courts.  14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+468262 18620 889 1 29 44619.98 0.07 0.05 R F 1995-02-21 1994-12-04 1995-03-02 COLLECT COD TRUCK as. blithely  468262 14993 F 176860.68 1994-11-01 1-URGENT Clerk#000000542 0  affix. furiously ironic deposits above the ironic excuses ha 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+468262 4705 468 2 21 33803.7 0.07 0.05 A F 1995-01-05 1995-01-05 1995-01-24 COLLECT COD FOB pending ac 468262 14993 F 176860.68 1994-11-01 1-URGENT Clerk#000000542 0  affix. furiously ironic deposits above the ironic excuses ha 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+468262 14567 360 3 48 71114.88 0.1 0.05 R F 1994-11-03 1994-12-29 1994-11-08 DELIVER IN PERSON MAIL as. quickly silent  468262 14993 F 176860.68 1994-11-01 1-URGENT Clerk#000000542 0  affix. furiously ironic deposits above the ironic excuses ha 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+468262 12802 589 4 19 32581.2 0.06 0.08 R F 1994-11-23 1995-01-24 1994-12-14 NONE AIR -- foxes are slyly. permanently  468262 14993 F 176860.68 1994-11-01 1-URGENT Clerk#000000542 0  affix. furiously ironic deposits above the ironic excuses ha 14993 Customer#000014993 4UY0KBBjYBNhWBILWUo9V6RlGZZePQBOSaDZbb5, 10 20-561-835-6660 495.35 HOUSEHOLD n packages haggle slyly even 
+Execution time: 5648ms

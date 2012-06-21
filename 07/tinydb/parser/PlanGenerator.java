@@ -185,15 +185,16 @@ public class PlanGenerator {
 		
 		// Random
 		List<String> prevplan = new ArrayList<String>(plan);
-		int mincost = randomTree(); // init with first random tree
+		plan = new ArrayList<String>();
+		long mincost = randomTree(0); // init with first random tree
 		Operator minselect = select;
 		List<String> minplan = new ArrayList<String>(plan);
 		List<Edge> minedges = edges;
 		for(int i=1; i<100; i++){ // try 100 random trees in total an take the best one
 			select = null;
 			plan = new ArrayList<String>();
-//			edges = new ArrayList<Edge>();
-			int cost = randomTree();
+			edges = new ArrayList<Edge>();
+			long cost = randomTree(i);
 			if(cost < mincost){
 				mincost = cost;
 				minselect = select;
@@ -230,57 +231,15 @@ public class PlanGenerator {
 		return new QueryPlan(select, plan, nodes, edges);
 	}
 	
-	class Tree<T> {
-		T value;
-		Tree<T> left;
-		Tree<T> right;
-		int costs;
-		
-		Tree(Tree<T> left, Tree<T> right, T value){
-			this.left = left;
-			this.right = right;
-			this.value = value;
-		}
-		
-		int size(){
-			if(left == null && right == null) // leaf
-				return 1;
-			return 1+left.size()+right.size();
-		}
-		
-		int nleaves(){
-			if(left == null && right == null) // leaf
-				return 1;
-			return left.nleaves()+right.nleaves();	
-		}
-		
-		List<T> values(){
-			List<T> list = new ArrayList<T>();
-			if(left == null && right == null) // leaf
-				list.add(value);
-			else{
-				list.addAll(left.values());
-				list.addAll(right.values());
-			}
-			return list;
-		}
-		
-		public String toString(){
-			String r = " ";
-			if(left != null && right != null){
-				r += "|><|";
-				r += left.toString();
-				r += right.toString();
-			}else{
-				r += value;
-			}
-			return r;
-		}
-	}
 	
 	// random join tree generation
-	private int randomTree() {
+	private long randomTree(int x) {
 		int n = query.relations.size();
+		// enumerate possibilites by x
+//		int b = (int) (x/Dyck.fac(n));
+//		int p = (int) (x%Dyck.fac(n));
+//		if(b > Dyck.catalan(n-1)-1)
+//			return Long.MAX_VALUE;
 		Random rand = new Random();
 		// 1. generate a random number b in [0, C(n)[
 		int b = rand.nextInt(Dyck.catalan(n-1));
@@ -297,14 +256,17 @@ public class PlanGenerator {
 		}
 		Tree<String> root = createTree(encoding, leaves);
 		System.out.println(root.toString());
+		usedConditions.clear();
 		select = joinOrCross(root);
-		System.out.println("Generated random tree with costs "+root.costs);
+		System.out.println("Generated random tree "+x+" (b="+b+", p="+p+") with costs "+root.costs);
 		return root.costs;
 	}
 
 	private Operator joinOrCross(Tree<String> node) {
 		if(node.value != null){ // leaf
 			plan.add("Get selection/tablescan for binding "+node.value);
+			node.costs = cardinalities.get(node.value).intValue();
+//			node.costs = 0;
 			return h_selections.get(node.value);
 		}
 		Operator left = joinOrCross(node.left);
@@ -315,8 +277,10 @@ public class PlanGenerator {
 			PairCondition bindings = cond.pair.getBindings();
 			if(node.left.values().contains(bindings.a) && node.right.values().contains(bindings.b)
 			|| node.left.values().contains(bindings.b) && node.right.values().contains(bindings.a)){ // connected component?
-				Double c_a = cardinalities.get(bindings.a);
-				Double c_b = cardinalities.get(bindings.b);
+//				Double c_a = cardinalities.get(bindings.a);
+//				Double c_b = cardinalities.get(bindings.b);
+				long c_a = node.left.costs;
+				long c_b = node.right.costs;
 				double tmp = selectivities.get(cond)*c_a*c_b;
 				node.costs = (int) (tmp + node.left.costs + node.right.costs);
 				edges.add(new Edge(cond.pair, selectivities.get(cond)));
@@ -326,8 +290,22 @@ public class PlanGenerator {
 			}
 		}
 		// otherwise do a cross product
+		node.costs = node.left.costs * node.right.costs + node.left.costs + node.right.costs;
 		plan.add("CrossProduct "+left+" & "+right);
-		return new CrossProduct(left, right);
+		Operator r = new CrossProduct(left, right);
+		// do all possible selections
+		for(Condition cond : cond_join){
+			if(usedConditions.contains(cond)) continue;
+			PairCondition bindings = cond.pair.getBindings();
+			List<String> values = node.left.values();
+			values.addAll(node.right.values());
+			if(values.contains(bindings.a) && values.contains(bindings.b)){ // does result of cross product contain the registers of the condition?
+				usedConditions.add(cond);
+				plan.add("Selection of "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+node.costs);
+				r = new Selection(r, cond.a, cond.b);
+			}
+		}
+		return r;
 	}
 
 	private <T> Tree<T> createTree(List<Boolean> encoding, List<T> leaves) {

@@ -32,6 +32,7 @@ public class Parser {
 				queryPlan.print();
 				Executor.execute(queryPlan);
 			}catch(Exception e){
+				e.printStackTrace();
 				continue;
 			}
 		}
