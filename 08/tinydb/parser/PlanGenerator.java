@@ -181,35 +181,14 @@ public class PlanGenerator {
 		
 		// GOO
 //		goo();
+		
 		// TODO: DP
+		
 		// Random join trees: sample 100 random trees and take the best one
 //		sampleRandomTrees();
 		
-		
 		// QuickPick
-		
-		// initialize with query graph. every relation is a tree. 
-		Map<String, Tree<String>> Trees = new HashMap<String, Tree<String>>();
-		Tree<String> new_t = null;
-		for (String r: h_tables.keySet()){
-			Trees.put(r, new Tree<String>(null, null, r));
-		}
-		// while |trees|>1, pick an edge and merge connected trees if edge connects different subtrees
-		for(Condition cond : cond_join){
-			PairCondition bindings = cond.pair.getBindings();
-			if (Trees.get(bindings.a).values().contains(bindings.b)) continue;
-			new_t = new Tree<String>(Trees.get(bindings.a), Trees.get(bindings.b), null);
-			List<String> new_v = new_t.values();
-			for (String r : new_v) Trees.put(r, new_t);
-		}
-		System.out.println("qp debug here!");
-		System.out.println(new_t.toString());
-		joinOrCross(new_t);
-		System.out.println("costs "+new_t.costs);
-		System.out.println("qp debug end!");
-		//return tree. (hopefully theres only one left) TODO: query graph not connected?
-		
-
+		quickpick();
 		
 		
 		// handle projections
@@ -238,6 +217,29 @@ public class PlanGenerator {
 	}
 	
 	
+	private void quickpick() {
+		// initialize with query graph. every relation is a tree. 
+		Map<String, Tree<String>> trees = new HashMap<String, Tree<String>>();
+		Tree<String> new_t = null;
+		for (String r: h_tables.keySet()){
+			trees.put(r, new Tree<String>(null, null, r));
+		}
+		// while |trees|>1, pick an edge and merge connected trees if edge connects different subtrees
+		for(Condition cond : cond_join){
+			PairCondition bindings = cond.pair.getBindings();
+			if (trees.get(bindings.a).values().contains(bindings.b)) continue; // already connected
+			new_t = new Tree<String>(trees.get(bindings.a), trees.get(bindings.b), null);
+			List<String> new_v = new_t.values();
+			for(String r : new_v) trees.put(r, new_t);
+		}
+		// new_t should now be the only tree in the map and should contain all joins
+		System.out.println("qp debug here!");
+		System.out.println(new_t.toString());
+		select = joinOrCross(new_t);
+		System.out.println("costs "+new_t.costs);
+		System.out.println("qp debug end!");
+	}
+
 	// sample 100 random join trees
 	private void sampleRandomTrees(){
 		// Random
