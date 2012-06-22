@@ -182,6 +182,9 @@ public class PlanGenerator {
 		// GOO
 //		goo();
 		// TODO: DP
+		// Random join trees: sample 100 random trees and take the best one
+//		sampleRandomTrees();
+		
 		
 		// QuickPick
 		
@@ -206,27 +209,7 @@ public class PlanGenerator {
 		System.out.println("qp debug end!");
 		//return tree. (hopefully theres only one left) TODO: query graph not connected?
 		
-		// Random
-		List<String> prevplan = new ArrayList<String>(plan);
-		plan = new ArrayList<String>();
-		long mincost = randomTree(0); // init with first random tree
-		Operator minselect = select;
-		List<String> minplan = new ArrayList<String>(plan);
-		List<Edge> minedges = edges;
-		for(int i=1; i<100; i++){ // try 100 random trees in total an take the best one
-			select = null;
-			plan = new ArrayList<String>();
-			edges = new ArrayList<Edge>();
-			long cost = randomTree(i);
-			if(cost < mincost){
-				mincost = cost;
-				minselect = select;
-				minplan = plan;
-				minedges = edges;
-			}
-		}
-		// restore best one
-		select = minselect; prevplan.addAll(minplan); plan = prevplan; edges = minedges;
+
 		
 		
 		// handle projections
@@ -254,6 +237,31 @@ public class PlanGenerator {
 		return new QueryPlan(select, plan, nodes, edges);
 	}
 	
+	
+	// sample 100 random join trees
+	private void sampleRandomTrees(){
+		// Random
+		List<String> prevplan = new ArrayList<String>(plan);
+		plan = new ArrayList<String>();
+		long mincost = randomTree(0); // init with first random tree
+		Operator minselect = select;
+		List<String> minplan = new ArrayList<String>(plan);
+		List<Edge> minedges = edges;
+		for(int i=1; i<100; i++){ // try 100 random trees in total an take the best one
+			select = null;
+			plan = new ArrayList<String>();
+			edges = new ArrayList<Edge>();
+			long cost = randomTree(i);
+			if(cost < mincost){
+				mincost = cost;
+				minselect = select;
+				minplan = plan;
+				minedges = edges;
+			}
+		}
+		// restore best one
+		select = minselect; prevplan.addAll(minplan); plan = prevplan; edges = minedges;
+	}
 	
 	// random join tree generation
 	private long randomTree(int x) {
