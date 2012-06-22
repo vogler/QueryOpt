@@ -218,26 +218,49 @@ public class PlanGenerator {
 	
 	
 	private void quickpick() {
-		// initialize with query graph. every relation is a tree. 
-		Map<String, Tree<String>> trees = new HashMap<String, Tree<String>>();
-		Tree<String> new_t = null;
-		for (String r: h_tables.keySet()){
-			trees.put(r, new Tree<String>(null, null, r));
+		int num_trees = 5; //number of trees generated
+		
+		Tree<String> low_tree = null;
+		long low_cost = Integer.MAX_VALUE;
+		List<Long> all_costs = new ArrayList<Long>();
+		Random rand = new Random();
+		
+		for (int i=0;i<num_trees;i++){
+			// initialize with query graph. every relation is a tree.
+			Map<String, Tree<String>> trees = new HashMap<String, Tree<String>>();
+			Tree<String> new_t = null;
+			for (String r: h_tables.keySet()){
+				trees.put(r, new Tree<String>(null, null, r));
+			}
+			// while |trees|>1, pick an edge and merge connected trees if edge connects different subtrees
+			List<Condition> joins = new ArrayList<Condition>();
+			for(Condition c : cond_join) joins.add(c);
+			
+			while (!joins.isEmpty()){
+				int ra = rand.nextInt(joins.size());
+				Condition cond = joins.get(ra);
+				joins.remove(ra);
+				
+				
+				PairCondition bindings = cond.pair.getBindings();
+				if (trees.get(bindings.a).values().contains(bindings.b)) continue; // already connected
+				new_t = new Tree<String>(trees.get(bindings.a), trees.get(bindings.b), null);
+				List<String> new_v = new_t.values();
+				for(String r : new_v) trees.put(r, new_t);
+			}
+			// new_t should now be the only tree in the map and should contain all joins
+			select = joinOrCross(new_t);
+			all_costs.add(new_t.costs);
+			System.out.println("added "+new_t.toString());
+			if (new_t.costs<low_cost){
+				low_cost = new_t.costs;
+				low_tree = new_t;
+			}
 		}
-		// while |trees|>1, pick an edge and merge connected trees if edge connects different subtrees
-		for(Condition cond : cond_join){
-			PairCondition bindings = cond.pair.getBindings();
-			if (trees.get(bindings.a).values().contains(bindings.b)) continue; // already connected
-			new_t = new Tree<String>(trees.get(bindings.a), trees.get(bindings.b), null);
-			List<String> new_v = new_t.values();
-			for(String r : new_v) trees.put(r, new_t);
-		}
-		// new_t should now be the only tree in the map and should contain all joins
-		System.out.println("qp debug here!");
-		System.out.println(new_t.toString());
-		select = joinOrCross(new_t);
-		System.out.println("costs "+new_t.costs);
-		System.out.println("qp debug end!");
+		select = joinOrCross(low_tree);
+		System.out.println("QuickPick finished with "+num_trees+" trees.");
+		System.out.println("Cheapest tree is "+low_tree.toString()+" with cost of "+low_cost);
+		
 	}
 
 	// sample 100 random join trees
