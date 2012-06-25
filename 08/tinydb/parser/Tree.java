@@ -8,6 +8,7 @@ class Tree<T> {
 	Tree<T> left;
 	Tree<T> right;
 	long costs;
+	long cardinality;
 	
 	Tree(Tree<T> left, Tree<T> right, T value){
 		this.left = left;
@@ -41,9 +42,12 @@ class Tree<T> {
 	public String toString(){
 		String r = " ";
 		if(left != null && right != null){
-			r += "|><|";
-			r += left.toString();
-			r += right.toString();
+			r+= "("+left.toString();
+			r+= " |><|";
+			r += right.toString()+")";
+//			r += "|><|";
+//			r += left.toString();
+//			r += right.toString();
 		}else{
 			r += value;
 		}

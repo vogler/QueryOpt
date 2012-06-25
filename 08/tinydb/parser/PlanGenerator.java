@@ -218,10 +218,11 @@ public class PlanGenerator {
 	
 	
 	private void quickpick() {
-		int num_trees = 5; //number of trees generated
+		int num_trees = 9; //number of trees generated. doesn't check for duplicate trees
 		
 		Tree<String> low_tree = null;
-		long low_cost = Integer.MAX_VALUE;
+		long low_cost = Long.MAX_VALUE;
+		
 		List<Long> all_costs = new ArrayList<Long>();
 		Random rand = new Random();
 		
@@ -244,22 +245,29 @@ public class PlanGenerator {
 				
 				PairCondition bindings = cond.pair.getBindings();
 				if (trees.get(bindings.a).values().contains(bindings.b)) continue; // already connected
+				//System.out.println("merging "+trees.get(bindings.a).toString()+" and "+trees.get(bindings.b).toString());
 				new_t = new Tree<String>(trees.get(bindings.a), trees.get(bindings.b), null);
 				List<String> new_v = new_t.values();
 				for(String r : new_v) trees.put(r, new_t);
 			}
 			// new_t should now be the only tree in the map and should contain all joins
-			select = joinOrCross(new_t);
+			//select = joinOrCross(new_t);
+			new_t = calcCosts(new_t);
 			all_costs.add(new_t.costs);
-			System.out.println("added "+new_t.toString());
+			System.out.println("added "+new_t.toString()+" with cost of "+new_t.costs);
 			if (new_t.costs<low_cost){
 				low_cost = new_t.costs;
 				low_tree = new_t;
 			}
 		}
 		select = joinOrCross(low_tree);
+		//select = joinOrCross(low_tree);
 		System.out.println("QuickPick finished with "+num_trees+" trees.");
 		System.out.println("Cheapest tree is "+low_tree.toString()+" with cost of "+low_cost);
+		System.out.println("Cost distribution: ");
+		for (long c : all_costs){
+			System.out.println(c+" ");
+		}
 		
 	}
 
@@ -319,6 +327,7 @@ public class PlanGenerator {
 	}
 
 	private Operator joinOrCross(Tree<String> node) {
+		//TODO: cost calculation is wrong (doesn't matter for quickpick)!
 		if(node.value != null){ // leaf
 			plan.add("Get selection/tablescan for binding "+node.value);
 			node.costs = cardinalities.get(node.value).intValue();
@@ -341,7 +350,8 @@ public class PlanGenerator {
 				node.costs = (int) (tmp + node.left.costs + node.right.costs);
 				edges.add(new Edge(cond.pair, selectivities.get(cond)));
 				usedConditions.add(cond);
-				plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+node.costs);
+				//plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair+" and cost of "+node.costs);
+				plan.add("HashJoin "+bindings.a+" & "+bindings.b+" with "+cond.pair);
 				return new HashJoin(left, right, cond.a, cond.b);
 			}
 		}
@@ -380,6 +390,34 @@ public class PlanGenerator {
 			T leaf = leaves.remove(0);
 			return new Tree<T>(null, null, leaf);
 		}
+	}
+	
+	
+	private Tree<String> calcCosts(Tree<String> node) {
+		if(node.value != null){ // leaf
+			node.costs = 0;
+			node.cardinality = cardinalities.get(node.value).intValue();
+			return node;
+			//plan.add("Get selection/tablescan for binding "+node.value);
+//			return cardinalities.get(node.value).intValue();
+//			node.costs = 0;
+//			return h_selections.get(node.value);
+		}
+		node.left = calcCosts(node.left);
+		node.right = calcCosts(node.right);
+		// is there a join predicate that contains any relations from the two subtrees?
+		//multiply all selectivities of joins that contain relations that are in the left and right subtree
+		double selectivity = 1.0;
+		for(Condition cond : cond_join){
+			PairCondition bindings = cond.pair.getBindings();
+			if(node.left.values().contains(bindings.a) && node.right.values().contains(bindings.b)
+					|| node.left.values().contains(bindings.b) && node.right.values().contains(bindings.a)){
+				selectivity = selectivity * selectivities.get(cond);
+			}
+		}
+		node.cardinality = (long) Math.round(selectivity*node.left.cardinality*node.right.cardinality);
+		node.costs = node.cardinality+node.left.costs+node.right.costs;
+		return node;
 	}
 
 	// greedy operator ordering
