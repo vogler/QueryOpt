@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{scrartcl}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{float}
+
+
+\def\ojoin{\setbox0=\hbox{$\bowtie$}%
+  \rule[-.02ex]{.25em}{.4pt}\llap{\rule[\ht0]{.25em}{.4pt}}}
+\def\leftouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie}}
+\def\rightouterjoin{\mathbin{\bowtie\mkern-5.8mu\ojoin}}
+\def\fullouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie\mkern-5.8mu\ojoin}}
+
+\begin{document}
+
+\author{Johannes Merkle\\Ralf Vogler}
+\title{Query Optimization}
+\subtitle{9. Exercise}
+
+\maketitle
+
+\section*{Exercise 1 - Iterative Improvement}
+\paragraph*{Simple}
+The simplest example where iterative improvement doesn't find the optimal solution would be an empty rule set and a non-optimal start solution for any query graph.
+
+\paragraph*{Extended}
+As an example for a non-empty rule set we used the query graph shown in session 08:\\
+\includegraphics[scale=.8]{graph-and-tree}\\
+We assume left deep trees with a commutativity rule set.
+The costs for all possible join trees can be found in \verb|costs.txt|.
+A start solution that would get stuck in a local minimum and therefore wouldn't yield an optimal solution is e.g. 1234 (TODO).
+
+
+\end{document}
