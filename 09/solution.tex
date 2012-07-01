@@ -9,6 +9,31 @@
 \usepackage{graphicx}
 \usepackage{float}
 
+\usepackage{listings}
+\usepackage{color}
+%% http://stackoverflow.com/questions/741985/latex-source-code-listing-like-in-professional-books
+\usepackage{courier}
+\definecolor{light-gray}{gray}{0.95}
+\lstset{
+  % language=C,
+  basicstyle=\small\sffamily,
+%   basicstyle=\small\ttfamily,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=tb,
+%  columns=fullflexible,
+%  showstringspaces=false,
+	backgroundcolor=\color{light-gray},
+	linewidth=\linewidth,       % Zeilenbreite
+	breaklines=true,             % Zeileumbruch
+	breakatwhitespace=false, %Umbruch an Leerzeichen
+  tabsize=2,
+  extendedchars=true,
+  xleftmargin=17pt,
+  framexleftmargin=17pt,
+  abovecaptionskip=7pt,
+%   frameround=tttt,
+}
 
 \def\ojoin{\setbox0=\hbox{$\bowtie$}%
   \rule[-.02ex]{.25em}{.4pt}\llap{\rule[\ht0]{.25em}{.4pt}}}
@@ -34,6 +59,9 @@ As an example for a non-empty rule set we used the query graph shown in session 
 We assume left deep trees with a commutativity rule set.
 The costs for all possible join trees can be found in \verb|costs.txt|.
 A start solution that would get stuck in a local minimum and therefore wouldn't yield an optimal solution is e.g. 1234 (TODO).
+
+
+\lstinputlisting[caption={Costs for all possible join trees},label=lst:costs]{costs.txt}
 
 
 \end{document}
