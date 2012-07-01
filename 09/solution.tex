@@ -31,9 +31,9 @@ The simplest example where iterative improvement doesn't find the optimal soluti
 \paragraph*{Extended}
 As an example for a non-empty rule set we used the query graph shown in session 08:\\
 \includegraphics[scale=.8]{graph-and-tree}\\
-We assume left deep trees with a commutativity rule set.
-The costs for all possible join trees can be found in \verb|costs.txt|.
-A start solution that would get stuck in a local minimum and therefore wouldn't yield an optimal solution is e.g. 1234 (TODO).
+We assume left deep trees with a commutativity ($swap$) and $3cycle$  rule set.
+The costs for all possible join trees can be found in \verb|costs.txt| (as swapping the relations of the first join doesn't change $C_{out}$, these permutations are left out).
+A start solution that is a local minimum and therefore wouldn't yield an optimal solution is e.g. $(1 \Join 4)\Join 3)\Join 2$. With $swap$ we can reach $(3 \Join 4)\Join 1)\Join 2$ and $(1 \Join 2)\Join 3)\Join 4$ and with $3cycle$ $(3 \Join 4)\Join 2)\Join 1$ and $(4 \Join 3)\Join 1)\Join 2$ which all have higher costs. Thus the optimal solution $(2 \Join 3)\Join 4)\Join 1$ can't be reached.
 
 
 \end{document}
