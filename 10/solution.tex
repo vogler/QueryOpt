@@ -45,23 +45,25 @@
 
 \author{Johannes Merkle\\Ralf Vogler}
 \title{Query Optimization}
-\subtitle{9. Exercise}
+\subtitle{10. Exercise}
 
 \maketitle
 
-\section*{Exercise 1 - Iterative Improvement}
+\section*{Exercise 1 - Bandwidth and seek time}
 \paragraph*{Simple}
-The simplest example where iterative improvement doesn't find the optimal solution would be an empty rule set and a non-optimal start solution for any query graph.
+See folder \verb|java| for the code. \verb|results.txt| contains some test results. Drive \verb|C| is a SSD and drive \verb|G| a NDAS connected over Gigabit-Ethernet. Results using other tools are shown in the images.
 
-\paragraph*{Extended}
-As an example for a non-empty rule set we used the query graph shown in session 08:\\
-\includegraphics[scale=.6]{graph-and-tree}\\
-We assume left deep trees with a commutativity rule set containing $swap$ and $3cycle$.
-The costs for all possible join trees can be found in \verb|costs.txt| (as swapping the relations of the first join doesn't change $C_{out}$, these permutations are left out).
-A start solution that is a local minimum and therefore wouldn't yield an optimal solution is e.g. $(1 \Join 4)\Join 3)\Join 2$. With $swap$ we can reach $(3 \Join 4)\Join 1)\Join 2$ and $(1 \Join 2)\Join 3)\Join 4$ and with $3cycle$ $(3 \Join 4)\Join 2)\Join 1$ and $(4 \Join 3)\Join 1)\Join 2$ which all have higher costs. Thus the optimal solution $(2 \Join 3)\Join 4)\Join 1$ can't be reached.\\
+\lstinputlisting[caption={Some test results},label=lst:results]{results.txt}
 
 
-\lstinputlisting[caption={Costs for all possible join trees},label=lst:costs]{costs.txt}
-
+\section*{Exercise 2 - Break even point}
+Assuming 170 MB/s bandwidth and 300 $\mu$s seek time:
+\begin{align*}
+t_{page} = 8KB / (170 MB/s) &= 45.9558823529 \mu s\\
+s * t_{page} &\stackrel{!}{=} x * s * log_2(s) * 300\mu s\\
+x &= 0.1531862745 * log_2(s)^{-1}
+\end{align*}
+where s is the total number of pages of the relation and x is the selectivity ratio.
+If the query selects more than x\% of the relation, then it will be faster to do a scan instead of an index lookup.
 
 \end{document}

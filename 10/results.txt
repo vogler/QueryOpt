@@ -1,0 +1,29 @@
+File: C:\Users\Ralf\TUM\Query Optimization\10\java\src\..\..\..\tpch\lineitem.tbl
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 31,29 ms -> Seek time: 312,87 탎
+Read 74246996 Bytes in 444,61 ms -> Bandwidth: 166,99 MB/s
+
+File: C:\Users\Ralf\TUM\Query Optimization\10\java\src\..\..\..\tpch\lineitem
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 29,74 ms -> Seek time: 297,45 탎
+Read 73314003 Bytes in 432,62 ms -> Bandwidth: 169,47 MB/s
+
+File: C:\Users\Ralf\TUM\Query Optimization\10\java\src\DiskSpeed.class
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 1,17 ms -> Seek time: 11,66 탎
+Read 2491 Bytes in 39,52 탎 -> Bandwidth: 63,03 MB/s
+
+File: C:\Users\Ralf\TUM\Query Optimization\10\java\src\DiskSpeed.java
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 1,14 ms -> Seek time: 11,39 탎
+Read 2194 Bytes in 45,17 탎 -> Bandwidth: 48,57 MB/s
+
+File: G:\american.dad.s07e13.hdtv.xvid-2hd.avi
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 877,44 ms -> Seek time: 8,77 ms
+Read 181831496 Bytes in 11,56 s -> Bandwidth: 15,72 MB/s
+
+File: G:\Shows\Game Of Thrones\2\Game.of.Thrones.S02E01.720p.HDTV.x264-IMMERSE.mkv
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 1,08 s -> Seek time: 10,83 ms
+Read 1410844298 Bytes in 94,53 s -> Bandwidth: 14,93 MB/s
