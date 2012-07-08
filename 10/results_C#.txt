@@ -1,0 +1,29 @@
+File: C:\Users\Ralf\TUM\Query Optimization\tpch\lineitem.tbl
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 00:00:00.0324227 -> Seek time: 0,32ms
+Read 74246996 Bytes in 00:00:00.3331088 -> Bandwidth: 222,96 MB/s
+
+File: C:\Users\Ralf\TUM\Query Optimization\tpch\lineitem
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 00:00:00.0307797 -> Seek time: 0,3ms
+Read 73314003 Bytes in 00:00:00.1135425 -> Bandwidth: 648,80 MB/s
+
+File: C:\Users\Ralf\TUM\Query Optimization\10\Java\src\DiskSpeed.class
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 00:00:00.0009295 -> Seek time: 0ms
+Read 2491 Bytes in 00:00:00.0000169 -> Bandwidth: +unendlich MB/s
+
+File: C:\Users\Ralf\TUM\Query Optimization\10\Java\src\DiskSpeed.java
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 00:00:00.0009639 -> Seek time: 0ms
+Read 2194 Bytes in 00:00:00.0000138 -> Bandwidth: +unendlich MB/s
+
+File: G:\American.Dad.S07E14.HDTV.x264-LOL.mp4
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 00:00:00.8804988 -> Seek time: 8,8ms
+Read 81547395 Bytes in 00:00:04.1611545 -> Bandwidth: 19,60 MB/s
+
+File: G:\Shows\Game Of Thrones\2\Game.of.Thrones.S02E01.720p.HDTV.x264-IMMERSE.mkv
+Block size: 4096 Bytes
+Did 100 random seeks over the whole file in 00:00:01.1204506 -> Seek time: 11,2ms
+Read 1410844298 Bytes in 00:00:38.8379949 -> Bandwidth: 36,33 MB/s

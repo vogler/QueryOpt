@@ -50,7 +50,7 @@
 \maketitle
 
 \section*{Exercise 1 - Bandwidth and seek time}
-See folder \verb|java| for the code. \verb|results.txt| contains some test results. Drive \verb|C| is a SSD and drive \verb|G| is a NDAS connected over Gigabit-Ethernet. Results using other tools are shown in the images in this folder.
+See folder \verb|Java| for the code (alternatively folder \verb|C#|). \verb:results_(Java|C#).txt: contains some test results. Drive \verb|C| is a SSD and drive \verb|G| is a NDAS connected over Gigabit-Ethernet. Results using other tools are shown in the images in this folder. The meassured seek time is probably slightly better because of the randomly generated seek positions (RNG based on time might yield the same value multiple times). The bandwith in the C\# version is off for small files since the Stopwatch-Class only uses milliseconds, wheras the Java version uses nanoseconds.
 
 %\lstinputlisting[caption={Some test results},label=lst:results]{results.txt}
 
