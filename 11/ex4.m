@@ -4,9 +4,9 @@ m = 100;
 n = 10;
 
 N = n*m;
-Y = zeros(1,N);
-Y_w = zeros(1,N);
-Y_b = zeros(1,N);
+Y = zeros(1,N);     % Yao
+Y_w = zeros(1,N);   % Waters
+Y_b = zeros(1,N);   % Bernstein
 
 
 for k = 1:1000
@@ -15,7 +15,7 @@ for k = 1:1000
         %p = nchoosek(N-n,k)/nchoosek(N,k); %not exact
         X = 0:k-1;
         p = prod((N-n-X)./(N-X));
-        Y(k) = (1-p)*m;
+        Y(k)   = m*(1-p);
         % Waters
         Y_w(k) = m*(1-(1-k/N)^n);
     else
