@@ -86,7 +86,15 @@ with L = \#possible distributions = $\begin{pmatrix} N \\ k \end{pmatrix} = \beg
 $Average = (3*1 + 12*2)/15 = 1.8$\\
 
 \section*{Exercise 3 - Yao formula for optimization}
-Query: \verb|select * from bla|
+\begin{lstlisting}[language=SQL]
+select * from student s where s.age>20
+\end{lstlisting}
+Assume we have an clustered index on \textit{age}. When using the index we go down the tree and find the first tuple for which the predicate holds, then we go through the leaves to get the other tuples until the predicate is no longer true.
+To read each tuple we have to jump around on the disk - moving the head with a certain seek time.
+
+Using Yaos formula we can calculate the expected number of pages we have to access.
+Assuming a certain seek time and bandwith for the drive, we can then calculate (like in Ex 10.2) wether it's faster to use the index or to do a tablescan.
+
 
 
 \section*{Exercise 4 - Plot: Yao, Bernstein, Waters}
