@@ -33,31 +33,28 @@ for k = 1:1000
     end
 end
 
-
+f1 = figure;
+hold all;
+ylabel('accessed pages');
+xlabel('tuples');
+f2 = copyobj(gcf,0);
+f3 = copyobj(gcf,0);
+f4 = copyobj(gcf,0);
+figure(f1);
+title('Combined plot');
 plot(Y, 'Color', 'Red');
-hold all;
 plot(Y_w, 'Color', 'Blue');
-hold all;
 plot(Y_b, 'Color', 'Green');
 legend('Yao', 'Waters', 'Bernstein');
-title('Combined plot');
-ylabel('accessed pages');
-xlabel('tuples');
 
-figure;
-plot(Y, 'Color', 'Red');
+figure(f2);
 title('Yao');
-ylabel('accessed pages');
-xlabel('tuples');
+plot(Y, 'Color', 'Red');
 
-figure;
-plot(Y_w, 'Color', 'Blue');
+figure(f3);
 title('Waters');
-ylabel('accessed pages');
-xlabel('tuples');
+plot(Y_w, 'Color', 'Blue');
 
-figure;
-plot(Y_b, 'Color', 'Green');
+figure(f4);
 title('Bernstein');
-ylabel('accessed pages');
-xlabel('tuples');
+plot(Y_b, 'Color', 'Green');
